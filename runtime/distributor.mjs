@@ -1,10 +1,14 @@
 import {tx} from './db.mjs';
+import {exactRepeatViolation} from './scheduler.mjs';
 function human(a){if(a?.type!=='human'||!a.name?.trim())throw Error('Explicit human confirmer required');}
 export async function beginManual(db,content_id,account_ref,slot=null) {
  if(!account_ref?.trim())throw Error('account_ref required');
  return tx(db,async t=>{
  const p=(await t.query('SELECT *,content_hash(content_library) AS hash FROM content_library WHERE id=$1 FOR UPDATE',[content_id])).rows[0];
- if(!p||!['approved','scheduled'].includes(p.status)||p.edited_after_approval)throw Error('Current approved revision required');
+ if(!p)throw Error('Current approved revision required');
+ const violation=await exactRepeatViolation(t,p);
+ if(violation)throw Error('Exact repeat blocked: '+violation);
+ if(!['approved','scheduled'].includes(p.status)||p.edited_after_approval)throw Error('Current approved revision required');
  if(slot&&!(await t.query("SELECT 1 FROM rotation_slots WHERE id=$1 AND content_id=$2 AND status='confirmed'",[slot,content_id])).rows.length)throw Error('Slot must be human-confirmed');
  if((await t.query("SELECT 1 FROM publish_instances WHERE content_id=$1 AND account_ref=$2 AND state='unknown'",[content_id,account_ref])).rows.length)throw Error('D3: unknown outcome requires human resolution');
  let pi=(await t.query(`SELECT * FROM publish_instances WHERE content_id=$1 AND account_ref=$2 AND rotation_slot_id IS NOT DISTINCT FROM $3::uuid FOR UPDATE`,[content_id,account_ref,slot])).rows[0];
@@ -36,7 +40,10 @@ export async function confirmURL(db,id,url,actor) {
  if(p.hash!==pi.sent_content_hash||p.edited_after_approval)throw Error('Content changed since manual attempt; resolve explicitly');
  await t.query("UPDATE publish_attempts SET outcome='ok',verified_via='itay_manual',finished_at=now() WHERE publish_instance_id=$1 AND outcome IS NULL",[id]);
  await t.query("UPDATE publish_instances SET state='confirmed',external_url=$2,confirmed_by=$3,confirmed_at=now() WHERE id=$1",[id,url,actor.name]);
- await t.query("UPDATE content_library SET status='published',external_url=$2,published_at=now(),last_published_at=now(),times_published=times_published+1 WHERE id=$1",[pi.content_id,url]);
+ await t.query(`UPDATE content_library SET status='published',external_url=$2,published_at=now(),last_published_at=now(),
+ times_published=times_published+1,
+ repeats_done=CASE WHEN is_exact_repeatable AND times_published>=1 THEN repeats_done+1 ELSE repeats_done END
+ WHERE id=$1`,[pi.content_id,url]);
  if(pi.rotation_slot_id)await t.query("UPDATE rotation_slots SET status='published' WHERE id=$1",[pi.rotation_slot_id]);
  return {id,state:'confirmed',url};
  },actor);

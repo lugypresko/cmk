@@ -63,7 +63,7 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 2. **2 formats first** (LinkedIn text_post and carousel). The other 9 are schema-ready stubs behind `format_registry.v0_enabled` plus a DB trigger.
 3. **1 LinkedIn post/day** and per-slot human confirmation. The SPEC's volume comes through ramping `daily_caps`.
 4. **Manual distribution** by default.
-5. **Recycling = new revision + Guardian + approval.** Never a verbatim repost.
+5. **Two recycle paths.** A piece Itay marks exact-repeatable repeats that approved version every 14 days (`repeat_every_days` default 14) until `repeat_until` or `max_repeats`, whichever comes first. He sets both limits when he marks it. Each repeat is a new `publish_instance` with the same `sent_content_hash` and asset checksums. The scheduler refuses the repeat when `edited_after_approval` is set, the live hash or asset checksums differ from the approved repeat hashes, or a referenced fact is expired or retired (`valid_until` / `usable_facts_v`). That refusal does not revoke approval (D2). A non-repeatable refresh, including any refresh after facts change, is still a new revision plus Guardian and approval.
 
 ## G. Remaining true gaps (by priority)
 1. Human approvals: six draft site facts, HE seeds, real Core and carousel; no agent substitutes.
@@ -84,7 +84,7 @@ Source: a GPT critique Itay pasted on 2026-11-03. Full mapping: `ARCHITECTURE_CR
 | # | Gap | Status | Where today | Proposed fix | Priority |
 |---|---|---|---|---|---|
 | H-1 | BrandGuardian is called "deterministic", but voice, ICP and source support are semantic | 🟡 | guardian_rules §0/§6, agents.md | Split into FactGate + SpecGate (code, can block) and EditorialGuardian (LLM, scores). `GuardianReport` v2 with 3 sub-reports | P0 |
-| H-2 | Approval isn't bound to an exact version: approved rows can be edited (no freeze trigger), and approval doesn't name the assets, account or distribution plan | 🟡 | schema.sql content_library CHECK, 002 audit (logs edits, doesn't block them) | `approvals` table (content_hash, asset_hashes, account_ref, distribution_ref) + freeze trigger | P0 |
+| H-2 | Approval isn't bound to an exact version: approved rows can be edited (no freeze trigger), and approval doesn't name the assets, account or distribution plan | ✅ decided (D2) | 005 §1 audit-only hash | **No freeze trigger and no approvals table.** D2 keeps the edit and the approval. Exact repeat (H-12) stays meaningful because the scheduler refuses a drifted hash; it does not revoke the approval | P0 |
 | H-3 | No publish attempt log, no `unknown` outcome, no verify-before-retry. The ext-id unique index can't stop a double post after a lost response | ❌ | agents.md Distributor | `publish_instances` + `publish_attempts`, unique attempt ids, provider lookup before any resend | P1 (P0 before any auto-post) |
 | H-4 | Memory doesn't separate fact / rule / hypothesis / one-off preference. Facts have no `valid_until`/`last_verified_at`. Rules have no reason or scope | 🟡 | approved_facts (`review_by` only), correction_log | Fact validity columns + `memory_changes` (kind, reason, scope, evidence, test_run_id, approval). `preference_once` is never promotable | P1 |
 | H-5 | No automated QA of the rendered file (applies to the v0 carousel PDF too) | 🟡 | agents.md PackageBuilder (Itay preview), MediaProducer proposed | RenderQA step + `media_assets` with sha256 + qa_report. Folds in G.9 | P1 |
@@ -94,11 +94,11 @@ Source: a GPT critique Itay pasted on 2026-11-03. Full mapping: `ARCHITECTURE_CR
 | H-9 | ErrorWatcher has no classification (content / policy / fact / infra) and no replay test on past examples before approval | 🟡 | agents.md ErrorWatcher | event → classify → propose → replay → approve → new version | P1 |
 | H-10 | Two schedule sources: `rotation_slots` and the Google Calendar events from plan 001 | 🟡 | scheduler_14day, rotation_plan_001.md | `rotation_slots`/`publish_instances` are the only authority. Calendar is a one-way view | P1 |
 | H-11 | Most of the 9 roles are mechanical but get described as agents | 🟡 | SPEC §4.2, agents.md | Orchestrator, Package, Scheduler, Distributor, Measurement-import, Fact/SpecGate, RenderQA as code. See agents.md "Critique alignment" | P0 (design) |
-| H-12 | Exact 14-day repeat vs. the current "always a new revision" rule | **?** | scheduler_14day Recycling | If an exact repeat is allowed: a repeat count or end date, a fact-validity check, and a stop when a fact changes. **Conflicts with F.5, so Itay decides** | P2 |
+| H-12 | Exact 14-day repeat vs. the current "always a new revision" rule | ✅ | scheduler_14day Recycling, migration 011, runtime/scheduler.mjs | **Locked 2026-11-03 20:35 Asia/Jerusalem.** Exact repeat of the approved version when Itay sets `repeat_until` and `max_repeats`. Refused on hash or asset drift, or when a referenced fact is expired or retired. New-revision path remains for everything else | P2 |
 | H-13 | Rules, templates and prompts in Git vs. Postgres (what "memory-as-codebase" means) | **?** | SPEC §3.1, 002 prompt_versions | Git for rules/prompts/templates, Postgres for facts/approvals/artifacts/state, object storage for media. Or keep it as is | P1 |
 | H-14 | Journal status vocabulary drift: entry 012 uses `proposed`, which `cmk.agent_journal.status` CHECK doesn't allow | 🟡 | migrations/004, journal 012 | Add `proposed` to the CHECK in the next migration, or use `done` + `human_gate` | P2 |
 
-**Already covered (no change):** version-gated prompts, the human-only `approved_by` CHECK, format-enabled gates, ErrorWatcher propose-only, 2 formats first, volume as a cap, recycle = new revision + re-approval, avatar consent + disclosure (B-13), Measurement never feeds Guardian, small n treated as a hypothesis.
+**Already covered (no change):** version-gated prompts, the human-only `approved_by` CHECK, format-enabled gates, ErrorWatcher propose-only, 2 formats first, volume as a cap, avatar consent + disclosure (B-13), Measurement never feeds Guardian, small n treated as a hypothesis. **Recycling (updated 2026-11-03 20:35):** an exact repeat of a version Itay marked repeatable is allowed (same hash and asset checksums, every 14 days, until a date or N repeats) and is refused if that hash or a referenced fact is no longer valid. A non-repeatable refresh is still a new revision plus Guardian and approval.
 
 ### Decision status (locked 2026-11-03, 16:28 Asia/Jerusalem)
 Itay decided D1–D5 (`ARCHITECTURE_CRITIQUE_RESPONSE.md` → *Decisions locked*). Schema draft: `migrations/005_critique_alignment.sql` + `test_005.sql`. It's smoke-tested in a throwaway in-memory DB only and **not applied to a live DB**. "In progress" = designed and drafted in docs/SQL, not yet applied or running as code.
@@ -116,7 +116,7 @@ Itay decided D1–D5 (`ARCHITECTURE_CRITIQUE_RESPONSE.md` → *Decisions locked*
 | H-9 | (follows D4) | 🟡 explicit stub | Classification/proposal and baseline fixture replay implemented; no auto-promotion. |
 | H-10 | Itay-default | ✅ decided | `rotation_slots` is the authority. Calendar is a one-way view |
 | H-11 | (follows D1) | ✅ decided | Code vs. agents table in agents.md |
-| H-12 | Itay-default | ✅ decided: **keep** new revision + gates + approval | The critique's exact-copy option is rejected unless Itay changes the SPEC |
+| H-12 | D12 override 2026-11-03 20:35 Asia/Jerusalem | ✅ decided | Exact 14-day verbatim repeat of the approved hash and asset checksums, until `repeat_until` or `max_repeats` (both set by Itay). Same `content_id` / revision / `sent_content_hash`, new `publish_instance` each time. The 4-day same-core gap and the open-plan exclusion do not apply to that slot. Refusal does not revoke approval (D2). New revision remains for non-repeatable refreshes |
 | H-13 | D4 = B | ✅ decided: **Postgres**, no Git | Closed |
 | H-14 | n/a | ✅ | 005 journal vocabulary includes proposed; new entries mirrored into DB. |
 
@@ -142,3 +142,6 @@ Scheduler proposes draft plans with unconfirmed filled/open slots; confirms only
 current approved package and cross-plan 1/day cap. Distributor records manual attempts and explicit URLs.
 Unknown outcomes refuse resend; no network publishing adapter exists. 009–010 strengthen human approval,
 lead owner, exemplar and memory promotion boundaries while preserving D2 audit-only edits.
+
+## Exact repeat (2026-11-03 20:35 Asia/Jerusalem)
+Itay locked a verbatim 14-day repeat for a version he marks repeatable (migration 011). This replaces the old F.5 / H-12 default for those pieces only. Quiet days stay manual. LinkedIn `text_post` and `carousel` only. No auto-publish. D1–D5 are unchanged; a drifted hash is refused by the scheduler and does not revoke approval.

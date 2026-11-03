@@ -145,3 +145,77 @@ test('baseline replay can inspect published content without changing it',async()
  assert.deepEqual(after,before);
  await assert.rejects(tx(db,t=>t.query("UPDATE correction_log SET promoted_to='brand_voice',promoted_at=now() WHERE id=$1",[r.id])),/human/);
 });
+test('exact repeat reuses the approved revision and blocks when the hash or facts change',async()=>{
+ const id=slot.content_id;
+ const revision=(await db.query('SELECT revision FROM cmk.content_library WHERE id=$1',[id])).rows[0].revision;
+ const hash=(await db.query('SELECT content_hash(c) AS h FROM cmk.content_library c WHERE id=$1',[id])).rows[0].h;
+ const openPlan=(await db.query(`SELECT p.status FROM cmk.rotation_slots s JOIN cmk.rotation_plans p ON p.id=s.rotation_plan_id WHERE s.id=$1`,[slot.id])).rows[0];
+ assert.equal(openPlan.status,'draft');
+ const before=await proposeSlots(db,{start_date:'2026-11-24',name:'before exact rule',package_dir:packageDir});
+ assert.ok(!before.filled.some(s=>String(s.content_id)===String(id)));
+ await assert.rejects(tx(db,t=>t.query(`UPDATE content_library SET is_exact_repeatable=true,repeat_every_days=14,repeat_until='2027-06-01',max_repeats=3,repeat_approved_content_hash=$2,repeat_asset_hashes='[]'::jsonb WHERE id=$1`,[id,hash])),/exact repeat rule is human-only/);
+ await tx(db,t=>t.query(`UPDATE content_library SET is_exact_repeatable=true,repeat_every_days=14,repeat_until='2027-06-01',max_repeats=3,
+  repeat_approved_content_hash=$2,repeat_asset_hashes='[]'::jsonb,last_published_at='2026-11-10T06:30:00+02' WHERE id=$1`,[id,hash]),human);
+ const coreId=(await db.query('SELECT core_asset_id FROM cmk.content_library WHERE id=$1',[id])).rows[0].core_asset_id;
+ const spec=(await db.query(`SELECT id FROM cmk.format_specs WHERE format='text_post' AND channel='linkedin' AND language='en' AND is_active LIMIT 1`)).rows[0];
+ await tx(db,async t=>{
+  const rev=(await t.query(`SELECT coalesce(max(revision),0)+1 AS n FROM content_library WHERE core_asset_id=$1 AND format='text_post' AND channel='linkedin' AND language='en'`,[coreId])).rows[0].n;
+  const sibling=(await t.query(`INSERT INTO content_library(core_asset_id,format_spec_id,format,channel,language,revision,body,status,brand_score,icp_relevance_score,approved_by,approved_at)
+   VALUES($1,$2,'text_post','linkedin','en',$3,'sibling core piece','approved',80,80,'TEST HUMAN',now()) RETURNING id`,[coreId,spec.id,rev])).rows[0];
+  const plan=(await t.query(`INSERT INTO rotation_plans(name,start_date,daily_caps,constraints,status) VALUES('sibling-core','2026-11-22','{"linkedin":1}','{}','draft') RETURNING id`)).rows[0];
+  await t.query(`INSERT INTO rotation_slots(rotation_plan_id,day,channel,format,language,local_time,content_id,status,confirmed_by,confirmed_at,rationale)
+   VALUES($1,1,'linkedin','text_post','en','08:30',$2,'confirmed','TEST HUMAN',now(),'same core inside the 4-day gap')`,[plan.id,sibling.id]);
+ },human);
+ assert.ok(Math.abs((Date.parse('2026-11-24')-Date.parse('2026-11-22'))/86400000)<4);
+ const next=await proposeSlots(db,{start_date:'2026-11-24',name:'exact-repeat',package_dir:packageDir});
+ const placed=next.filled.find(s=>String(s.content_id)===String(id));
+ assert.ok(placed);
+ assert.match(placed.rationale,/Exact repeat/);
+ assert.equal((await db.query('SELECT revision,status FROM cmk.content_library WHERE id=$1',[id])).rows[0].revision,revision);
+ assert.equal((await db.query('SELECT status FROM cmk.content_library WHERE id=$1',[id])).rows[0].status,'published');
+ await confirmSlot(db,placed.id,human,packageDir);
+ const first=(await db.query('SELECT sent_content_hash FROM cmk.publish_instances WHERE content_id=$1 ORDER BY created_at',[id])).rows[0];
+ const started=await beginManual(db,id,'test-profile',placed.id);
+ const inst=(await db.query('SELECT content_revision,sent_content_hash FROM cmk.publish_instances WHERE id=$1',[started.instance_id])).rows[0];
+ assert.equal(inst.content_revision,revision);
+ assert.equal(inst.sent_content_hash,hash);
+ assert.equal(inst.sent_content_hash,first.sent_content_hash);
+ await confirmURL(db,started.instance_id,'https://www.linkedin.com/posts/exact-repeat-cycle',human);
+ assert.equal((await db.query('SELECT repeats_done,status FROM cmk.content_library WHERE id=$1',[id])).rows[0].repeats_done,1);
+ await tx(db,t=>t.query(`UPDATE content_library SET last_published_at='2026-11-24T06:30:00+02' WHERE id=$1`,[id]),human);
+ await tx(db,t=>t.query(`UPDATE content_library SET repeat_asset_hashes=$2::jsonb WHERE id=$1`,[id,JSON.stringify(['a'.repeat(64)])]),human);
+ const assets=await proposeSlots(db,{start_date:'2026-12-08',name:'asset-block',package_dir:packageDir});
+ assert.ok(assets.blocked_exact_repeats.some(b=>String(b.content_id)===String(id)&&b.reason==='asset_hash_mismatch'));
+ assert.ok(!assets.filled.some(s=>String(s.content_id)===String(id)));
+ await tx(db,t=>t.query(`UPDATE content_library SET repeat_asset_hashes='[]'::jsonb WHERE id=$1`,[id]),human);
+ const fact=(await tx(db,t=>t.query(`INSERT INTO approved_facts(fact_key,category,statement_en,source_url,status,approved_by,approved_at,valid_until)
+  VALUES('proof.exact_repeat_test','proof','Synthetic exact-repeat fact','https://example.invalid/exact-repeat','approved','TEST HUMAN',now(),now()-interval '1 day') RETURNING id`),human)).rows[0];
+ await tx(db,t=>t.query('INSERT INTO content_fact_refs(content_id,approved_fact_id) VALUES($1,$2)',[id,fact.id]));
+ const expired=await proposeSlots(db,{start_date:'2026-12-08',name:'fact-expired',package_dir:packageDir});
+ assert.ok(expired.blocked_exact_repeats.some(b=>String(b.content_id)===String(id)&&b.reason==='fact_not_usable'));
+ assert.ok(!expired.filled.some(s=>String(s.content_id)===String(id)));
+ await tx(db,t=>t.query(`UPDATE approved_facts SET status='retired',valid_until=NULL WHERE id=$1`,[fact.id]),human);
+ const retired=await proposeSlots(db,{start_date:'2026-12-08',name:'fact-retired',package_dir:packageDir});
+ assert.ok(retired.blocked_exact_repeats.some(b=>String(b.content_id)===String(id)&&b.reason==='fact_not_usable'));
+ await tx(db,t=>t.query('DELETE FROM content_fact_refs WHERE content_id=$1 AND approved_fact_id=$2',[id,fact.id]));
+ const other=(await db.query(`SELECT id FROM cmk.content_library WHERE id<>$1 AND status='published' AND channel='linkedin' AND format IN ('text_post','carousel') ORDER BY created_at LIMIT 1`,[id])).rows[0];
+ assert.ok(other);
+ await tx(db,t=>t.query(`UPDATE content_library SET is_evergreen=true,recycle_after_days=14,last_published_at='2026-01-01T08:00:00+02' WHERE id=$1`,[other.id]),human);
+ await tx(db,t=>t.query(`UPDATE content_library SET body=body||' drift' WHERE id=$1`,[id]));
+ const kept=(await db.query('SELECT status,approved_by,edited_after_approval,is_exact_repeatable FROM cmk.content_library WHERE id=$1',[id])).rows[0];
+ assert.equal(kept.status,'published');
+ assert.equal(kept.approved_by,'TEST HUMAN');
+ assert.equal(kept.edited_after_approval,true);
+ assert.equal(kept.is_exact_repeatable,true);
+ const drifted=await proposeSlots(db,{start_date:'2026-12-08',name:'hash-block',package_dir:packageDir});
+ assert.ok(drifted.blocked_exact_repeats.some(b=>String(b.content_id)===String(id)&&b.reason==='hash_mismatch'));
+ assert.ok(!drifted.filled.some(s=>String(s.content_id)===String(id)));
+ assert.ok(drifted.new_revision_candidates.map(String).includes(String(other.id)));
+ assert.ok(!drifted.filled.some(s=>String(s.content_id)===String(other.id)));
+ const probe=await tx(db,async t=>{
+  const plan=(await t.query(`INSERT INTO rotation_plans(name,start_date,daily_caps,constraints,status) VALUES('drift-probe','2026-12-08','{"linkedin":1}','{}','draft') RETURNING id`)).rows[0];
+  return (await t.query(`INSERT INTO rotation_slots(rotation_plan_id,day,channel,format,language,local_time,content_id,status,rationale)
+   VALUES($1,1,'linkedin','text_post','he','08:30',$2,'filled','probe') RETURNING id`,[plan.id,id])).rows[0].id;
+ });
+ await assert.rejects(confirmSlot(db,probe,human,packageDir),/Exact repeat blocked: hash_mismatch/);
+});

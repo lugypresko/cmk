@@ -2,14 +2,17 @@
 
 Validated locally on PGlite PostgreSQL; no hosted/prod database changed.
 
-- Fresh apply: schema + 002–010 + both rollback SQL smoke tests, 12/12 steps passed.
+- Fresh apply: schema + 002–011 + three rollback SQL smoke tests, 14/14 steps passed.
 - Guardian unit suite: 19 passed.
 - File/import unit suite: 8 passed, including embedded PDF fonts, text drift, alt text, page count,
   correct Hebrew RTL and incorrectly ordered Hebrew, package approval/edit guards and asset tamper.
-- Runtime integration suite: 14 passed in a separate in-memory DB. Covers persisted Workflow A→B human
+- Runtime integration suite: 15 passed in a separate in-memory DB. Covers persisted Workflow A→B human
   gates for HE/EN text/carousel, per-derivative failure isolation, lease exclusion/recovery, exhaustion,
   contract rejection, human approval boundaries, package→schedule→manual-record flow, unknown refusal
-  at API and DB, measurement idempotence/NULL success metrics, and read-only baseline replay.
+  at API and DB, measurement idempotence/NULL success metrics, read-only baseline replay, and the exact
+  14-day repeat: same content id and hash on the next cycle, including across an open plan and inside
+  the 4-day same-core gap, then blocked on asset checksum drift, an expired fact, a retired fact, and
+  an edit after approval. That edit left the approval in place.
 - Run001 EN carousel Variant B: temporary placeholder PDF, eight pages. RenderQA passed open/count/
   text/dimensions/embedded fonts/alt checks; first page rendered and visually inspected. This is technical
   QA only, not content approval or a final carousel production design. No placeholder file is committed.
@@ -28,6 +31,8 @@ Validated locally on PGlite PostgreSQL; no hosted/prod database changed.
 - Review/activate prompts; supply a production judgment provider and Research prompt before live generation.
 - Set time-saved baseline and confirm ICP conversation metrics.
 - Preview final media and confirm individual schedule slots before manual publishing.
+- To mark a piece exact-repeatable, use the SQL in docs/OPERATIONS.md. Set both the end date and the
+  repeat count. The scheduler will not invent that grant.
 
 ## Deliberate limits
 
@@ -36,3 +41,4 @@ rule is automatically promoted. RenderQA currently supports extractable PDFs; ot
 closed. Local `--confirmer` is an operator declaration, not authentication. Authenticated service roles,
 hosted migration rollout, real media production/storage and a production LLM integration remain future
 operational work. No new format, higher threshold, automatic publisher or volume ramp was enabled.
+Exact repeat is opt-in per piece (docs/OPERATIONS.md). It does not publish by itself.

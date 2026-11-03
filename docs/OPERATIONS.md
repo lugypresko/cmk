@@ -102,7 +102,45 @@ There is no automatic retry. A known failed attempt can be started again only by
 
 The v0 Scheduler creates a draft plan; slot enum has no `draft`, so unconfirmed proposals use `filled`.
 It leaves missing candidates `open`. Daily cap is always 1 LinkedIn post, across plans, in Asia/Jerusalem.
-No Calendar integration is created. No exact recycling or disabled format is selected.
+No Calendar integration is created. Disabled formats are not selected. Quiet days stay the manual
+`quiet_days` list; Hebrew holidays are not added for you.
+
+## Mark a piece exact-repeatable
+
+Do this only after you have approved that revision and checked the package. The statement stores the
+current content hash and the pass-QA asset checksums. Set both an end date and a repeat count. The
+scheduler can then propose the same `content_id` and revision every 14 days until either limit.
+It will refuse a later slot if the text or assets change, or if a referenced fact expires or is retired.
+Your approval stays in place either way (D2). A piece you do not mark, or one whose facts changed,
+still needs a new revision, Guardian, and a new approval. LinkedIn `text_post` and `carousel` only.
+Confirm the slot the same way as any other slot, then record the live URL with `begin-manual` /
+`posted-url`. Each repeat is its own publish record. Nothing is auto-posted.
+
+```sql
+BEGIN;
+SET LOCAL cmk.actor_type='human';
+SET LOCAL cmk.actor_name='Itay';
+SET LOCAL cmk.run_id='human-exact-repeat';
+UPDATE cmk.content_library SET
+  is_exact_repeatable = true,
+  repeat_every_days = 14,
+  repeat_until = DATE '2027-06-01',
+  max_repeats = 4,
+  repeat_approved_content_hash = content_hash(content_library),
+  repeat_asset_hashes = coalesce((
+    SELECT jsonb_agg(sha256 ORDER BY sha256)
+    FROM cmk.media_assets
+    WHERE content_id = content_library.id
+      AND content_revision = content_library.revision
+      AND qa_status = 'pass'), '[]'::jsonb)
+WHERE id = '<piece-uuid>'
+  AND status = 'approved'
+  AND NOT edited_after_approval
+  AND channel = 'linkedin'
+  AND format IN ('text_post','carousel')
+  AND approved_content_hash = content_hash(content_library);
+COMMIT;
+```
 
 Run `scripts/test_all.sh --fresh` for a clean local validation, or omit `--fresh` to retain local data.
 The journal sync restores Markdown entries after a reset without modifying old entries. Historical
