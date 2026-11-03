@@ -1,0 +1,18 @@
+# Local database and PGlite data (scripts write db/pglite)
+db/
+
+# Python
+**/__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+
+# Archives
+*.tar.gz
+
+# Environment and secrets
+.env*

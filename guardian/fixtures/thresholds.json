@@ -1,0 +1,16 @@
+{
+  "profile": "v0",
+  "brand_min": 75,
+  "icp_min": 70,
+  "brand_min_float": "0.750",
+  "icp_min_float": "0.700",
+  "reject_brand_below": 50,
+  "reject_icp_below": 40,
+  "brand_cap_when_blocked": 74,
+  "is_active": true,
+  "source": "contracts.md / guardian_checklist.json v1 (current gate)",
+  "needs_review": false,
+  "approved_by": null,
+  "approved_at": null,
+  "created_at": "2026-11-03T14:44:21.879Z"
+}

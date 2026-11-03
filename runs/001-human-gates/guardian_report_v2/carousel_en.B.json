@@ -1,0 +1,250 @@
+{
+  "$schema": "cmk/GuardianReport.v2",
+  "piece": {
+    "source_path": "runs/001-human-gates/carousel_en.md",
+    "source_sha256": "9af1ff385899745e1fb07659c09f37a9e4c879af817b9e90c9874c678f5edcf1",
+    "variant": "B",
+    "loader_notes": [
+      "slide 6: variant B fallback used",
+      "variant B: paragraphs with ⟦STRIPE⟧/⟦NEED_APPROVED_FACT⟧ removed"
+    ],
+    "contract": "cmk/ContentPiece",
+    "format": "carousel",
+    "channel": "linkedin",
+    "language": "en",
+    "revision": 1,
+    "status_in_file": "draft",
+    "approved_by_in_file": null
+  },
+  "gate_verdict": "block",
+  "verdict": "needs_changes",
+  "verdict_reason": "code gate blocked (SpecGate)",
+  "spec": {
+    "pass": false,
+    "verdict": "block",
+    "checklist_version": 1,
+    "format_spec_id": "55d06850-0636-4e6a-a473-9edfad059fee",
+    "findings": [
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.id missing (assigned at DB insert; file mode)",
+        "field": "id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.core_asset_id missing (assigned at DB insert; file mode)",
+        "field": "core_asset_id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.format_spec_id missing (assigned at DB insert; file mode)",
+        "field": "format_spec_id"
+      },
+      {
+        "check_id": "S-03",
+        "type": "format",
+        "severity": "info",
+        "message": "format_specs.limits_verified=false (platform limits are house defaults, not re-verified)"
+      },
+      {
+        "check_id": "R-01",
+        "type": "format",
+        "severity": "blocker",
+        "message": "RenderQA not passed (media_assets.qa_status=missing); carousel not rendered yet",
+        "suggestion": "PackageBuilder renders slides (RTL for HE), RenderQA checks count/dims/text-match, then re-run."
+      }
+    ]
+  },
+  "fact": {
+    "pass": true,
+    "verdict": "pass",
+    "claims": [
+      {
+        "text": "It's that nobody moved the checks, so the manager still sits in the middle of every step.",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "generalisation"
+        ],
+        "fact_id": null,
+        "status": null
+      }
+    ],
+    "unsupported_claims": [],
+    "findings": [
+      {
+        "check_id": "C-08",
+        "type": "fact",
+        "severity": "info",
+        "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+      }
+    ],
+    "facts_considered": {
+      "total": 6,
+      "usable": 0,
+      "statuses": [
+        "draft"
+      ]
+    }
+  },
+  "editorial": {
+    "scorer": "heuristic-stub-v0",
+    "note": "Heuristic stub for calibration only. Production EditorialGuardian calls an LLM with the guardian_rules.md rubric.",
+    "brand_score": 86,
+    "icp_relevance_score": 95,
+    "brand_components": {
+      "BR-1": {
+        "points": 8,
+        "max": 15,
+        "why": "evidence/scene markers: ['Slack', 'Review']"
+      },
+      "BR-2": {
+        "points": 10,
+        "max": 10,
+        "why": "pattern words ['pattern', 'flow', 'gates', 'checks', 'system']; person-flaw []"
+      },
+      "BR-3": {
+        "points": 15,
+        "max": 15,
+        "why": "promise markers ['come back to you', 'right level', 'owns the judgment', \"where you're needed\"]; say_phrases ['needed at the right level', 'decisions still come back to you', 'accountability quietly turned into being present']"
+      },
+      "BR-4": {
+        "points": 10,
+        "max": 10,
+        "why": "AI present; human start=True end=True"
+      },
+      "BR-5": {
+        "points": 8,
+        "max": 15,
+        "why": "concrete but number-free (no approved facts used)"
+      },
+      "BR-6": {
+        "points": 10,
+        "max": 10,
+        "why": "move markers ['this week', 'One move', 'Take one']"
+      },
+      "BR-7": {
+        "points": 10,
+        "max": 10,
+        "why": "start at 10; hype/cliché/exclamation penalties applied separately"
+      },
+      "BR-8": {
+        "points": 10,
+        "max": 10,
+        "why": "closing question (22 words, reader's own team=True)"
+      },
+      "BR-9": {
+        "points": 5,
+        "max": 5,
+        "why": "duplicate sentences 0; calque detection needs LLM"
+      }
+    },
+    "icp_components": {
+      "ICP-1": {
+        "points": 30,
+        "max": 30,
+        "why": "manager-lens markers ['Your team', 'manager', 'your desk']"
+      },
+      "ICP-2": {
+        "points": 25,
+        "max": 25,
+        "why": "icp pain markers ['come back to you', 'being present', 'calendar', 'keeps coming back']"
+      },
+      "ICP-3": {
+        "points": 20,
+        "max": 20,
+        "why": "leadership-decision markers ['decision', 'judgment', 'requirement', 'Accountab', 'owns']"
+      },
+      "ICP-4": {
+        "points": 5,
+        "max": 10,
+        "why": "explicit []; implied ['Your team', 'agents', 'Review']"
+      },
+      "ICP-5": {
+        "points": 10,
+        "max": 10,
+        "why": "org-design markers ['flow', 'gates']"
+      },
+      "ICP-6": {
+        "points": 5,
+        "max": 5,
+        "why": "engineer-readable tokens ['Lints', 'test'] (bonus only)"
+      }
+    },
+    "penalties": 0,
+    "source_supports_wording": "n_a",
+    "adds_value": true,
+    "misleading_risk": "none detected by heuristics (LLM review pending)",
+    "recommend_reject": false,
+    "findings": []
+  },
+  "brand_score": 74,
+  "brand_score_uncapped": 86,
+  "icp_relevance_score": 95,
+  "findings": [
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.id missing (assigned at DB insert; file mode)",
+      "field": "id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.core_asset_id missing (assigned at DB insert; file mode)",
+      "field": "core_asset_id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.format_spec_id missing (assigned at DB insert; file mode)",
+      "field": "format_spec_id"
+    },
+    {
+      "check_id": "S-03",
+      "type": "format",
+      "severity": "info",
+      "message": "format_specs.limits_verified=false (platform limits are house defaults, not re-verified)"
+    },
+    {
+      "check_id": "R-01",
+      "type": "format",
+      "severity": "blocker",
+      "message": "RenderQA not passed (media_assets.qa_status=missing); carousel not rendered yet",
+      "suggestion": "PackageBuilder renders slides (RTL for HE), RenderQA checks count/dims/text-match, then re-run."
+    },
+    {
+      "check_id": "C-08",
+      "type": "fact",
+      "severity": "info",
+      "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+    }
+  ],
+  "unsupported_claims": [],
+  "threshold_profile": "v0",
+  "brand_voice_version": 1,
+  "counts": {
+    "blocker": 1,
+    "major": 0,
+    "minor": 0,
+    "info": 5
+  },
+  "checked_at": "2026-11-03T16:52:34+02:00",
+  "checked_by": "guardian v0 (SpecGate+FactGate code; EditorialGuardian heuristic stub)",
+  "inputs": {
+    "facts": "guardian/fixtures/approved_facts_db.json",
+    "claims": null,
+    "twin": "runs/001-human-gates/carousel_he.md",
+    "media_qa": null,
+    "strict": false
+  }
+}

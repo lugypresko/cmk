@@ -1,0 +1,11 @@
+{
+  "status": "approved_example",
+  "channel": "linkedin",
+  "language": "en",
+  "url": "https://lnkd.in/p/dDtbhtpf",
+  "title": "Human oversight key to successful agent-driven development (Stripe Minions EN)",
+  "pair_of": "seed_past_content_stripe_minions.json",
+  "brand_tags": ["systems_that_create_systems", "human_at_start_and_end", "deterministic_gates", "requirement_is_expensive"],
+  "voice_notes": "EN twin of HE Minions post; WHAT in message / HOW in system; CTO tester quote; closes with requirement authorship question.",
+  "body_excerpt": "Every dev manager I talk to tells me the same thing: Claude and GPT are doing amazing work for the team. ... Who writes the requirement in your team, and how do you know it's right?"
+}

@@ -1,0 +1,84 @@
+{
+  "id": "6757ca40-ae4c-4441-b0d6-d5728bc37e8a",
+  "slug": "eng-leader-growing-b2b-saas",
+  "name_en": "Engineering leader in a growing B2B SaaS",
+  "name_he": "מנהל/ת הנדסה בחברת B2B SaaS בצמיחה",
+  "priority": 1,
+  "roles": [
+    "Engineering Manager",
+    "Group Manager",
+    "Director of Engineering / R&D Director"
+  ],
+  "secondary_roles": [
+    "CTO",
+    "VP R&D"
+  ],
+  "company_context_en": "Growing B2B SaaS company; scope has grown; leads capable people.",
+  "company_context_he": "חברת B2B SaaS בצמיחה; ההיקף גדל; מוביל/ה אנשים מוכשרים.",
+  "pains": [
+    {
+      "en": "A decision that should close without me keeps coming back for one last check.",
+      "he": "החלטה שאמורה להיסגר בלעדיי חוזרת אליי לבדיקה אחרונה."
+    },
+    {
+      "en": "A meeting I somehow still need to attend: accountability turned into being present.",
+      "he": "פגישה שאני איכשהו עדיין חייב/ת להיות בה: אחריות הפכה לנוכחות."
+    },
+    {
+      "en": "An escalation that keeps climbing back up.",
+      "he": "הסלמה שממשיכה לטפס בחזרה למעלה."
+    },
+    {
+      "en": "Work that stalls when I am unavailable.",
+      "he": "עבודה שנתקעת כשאני לא זמין/ה."
+    },
+    {
+      "en": "Strategic work only starts after the meetings end; the calendar is full.",
+      "he": "העבודה האסטרטגית מתחילה רק אחרי שהפגישות נגמרות; היומן מלא."
+    }
+  ],
+  "strong_fit": [
+    {
+      "en": "Scope has grown, but too much still depends on direct involvement.",
+      "he": "ההיקף גדל, אבל יותר מדי עדיין תלוי במעורבות ישירה."
+    },
+    {
+      "en": "Leads capable people and wants more leverage without becoming disconnected.",
+      "he": "מוביל/ה אנשים מוכשרים ורוצה יותר מינוף בלי להתנתק."
+    },
+    {
+      "en": "Willing to test changes between sessions.",
+      "he": "מוכן/ה לבחון שינויים בין המפגשים."
+    }
+  ],
+  "not_a_fit": [
+    {
+      "en": "Doesn't have the authority the role requires.",
+      "he": "אין את הסמכות שהתפקיד דורש."
+    },
+    {
+      "en": "The team is materially understaffed.",
+      "he": "הצוות חסר משמעותית בכוח אדם."
+    },
+    {
+      "en": "The role or organization design is unresolved.",
+      "he": "התפקיד או המבנה הארגוני לא מוגדרים."
+    }
+  ],
+  "languages": [
+    "en",
+    "he"
+  ],
+  "channels": [
+    "linkedin",
+    "website",
+    "instagram",
+    "facebook",
+    "x"
+  ],
+  "is_active": true,
+  "needs_review": true,
+  "source_url": "https://itayfoyerstein.com",
+  "created_at": "2026-11-03T14:44:21.708Z",
+  "updated_at": "2026-11-03T14:44:21.708Z"
+}

@@ -1,0 +1,318 @@
+{
+  "$schema": "cmk/GuardianReport.v2",
+  "piece": {
+    "source_path": "runs/001-human-gates/core_asset_he.md",
+    "source_sha256": "802de7a7aa8a4af43f808d85bf488440101c4efe4bea3e4940e00458896706de",
+    "variant": "A",
+    "loader_notes": [],
+    "contract": "cmk/CoreAsset",
+    "format": "core_asset",
+    "channel": null,
+    "language": "he",
+    "revision": 1,
+    "status_in_file": "draft",
+    "approved_by_in_file": null
+  },
+  "gate_verdict": "block",
+  "verdict": "needs_changes",
+  "verdict_reason": "code gate blocked (SpecGate, FactGate)",
+  "spec": {
+    "pass": false,
+    "verdict": "block",
+    "checklist_version": 1,
+    "format_spec_id": null,
+    "findings": [
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "CoreAsset.id missing (assigned at DB insert; file mode)",
+        "field": "id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "CoreAsset.icp_profile_id missing (assigned at DB insert; file mode)",
+        "field": "icp_profile_id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "CoreAsset.brand_voice_id missing (assigned at DB insert; file mode)",
+        "field": "brand_voice_id"
+      },
+      {
+        "check_id": "S-02",
+        "type": "other",
+        "severity": "blocker",
+        "message": "unresolved placeholder '⟦ITAY_CONFIRM⟧'",
+        "field": "body",
+        "excerpt": "צורה: בני אדם בקצוות, דטרמיניזם באמצע.\n\n⟦ITAY_CONFIRM⟧ ככה אני מריץ גם את מערכת התוכן שלי: אני בוחר את התובנה, בדיקות אוטומטיות מדרגות",
+        "suggestion": "Resolve (Itay confirms the anecdote) or delete the paragraph before review."
+      },
+      {
+        "check_id": "L-01",
+        "type": "language",
+        "severity": "info",
+        "message": "HE letter ratio 1.00 (he=2389, latin=11 after tech allowlist) OK"
+      }
+    ]
+  },
+  "fact": {
+    "pass": false,
+    "verdict": "block",
+    "claims": [
+      {
+        "text": "שוב ושוב אני שומע את זה ממנהלי פיתוח שהכניסו סוכנים לצוות:",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker"
+        ],
+        "fact_id": null,
+        "status": null
+      },
+      {
+        "text": "בהרבה צוותים שאני מדבר איתם, המנהל יושב באמצע:",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker",
+          "generalisation"
+        ],
+        "fact_id": null,
+        "status": null
+      },
+      {
+        "text": "ב-Stripe כתבו על Minions, סוכני הקוד הפנימיים שלהם.",
+        "field": "body",
+        "kind": "fact",
+        "signals": [
+          "third_party:Stripe"
+        ],
+        "fact_id": null,
+        "status": "missing",
+        "reason": "no fact row matches this claim"
+      },
+      {
+        "text": "⟦ITAY_CONFIRM⟧ ככה אני מריץ גם את מערכת התוכן שלי:",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker"
+        ],
+        "fact_id": null,
+        "status": null
+      }
+    ],
+    "unsupported_claims": [
+      "ב-Stripe כתבו על Minions, סוכני הקוד הפנימיים שלהם."
+    ],
+    "findings": [
+      {
+        "check_id": "B-01",
+        "type": "fact",
+        "severity": "blocker",
+        "message": "unsupported claim (missing): no fact row matches this claim",
+        "field": "body",
+        "excerpt": "ב-Stripe כתבו על Minions, סוכני הקוד הפנימיים שלהם.",
+        "suggestion": "Get the fact approved (status=approved, public) and list its id, or remove/soften the claim."
+      },
+      {
+        "check_id": "C-08",
+        "type": "fact",
+        "severity": "info",
+        "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+      }
+    ],
+    "facts_considered": {
+      "total": 6,
+      "usable": 0,
+      "statuses": [
+        "draft"
+      ]
+    }
+  },
+  "editorial": {
+    "scorer": "heuristic-stub-v0",
+    "note": "Heuristic stub for calibration only. Production EditorialGuardian calls an LLM with the guardian_rules.md rubric.",
+    "brand_score": 93,
+    "icp_relevance_score": 95,
+    "brand_components": {
+      "BR-1": {
+        "points": 15,
+        "max": 15,
+        "why": "evidence/scene markers: ['אני שומע', 'שוב ושוב', 'אלה העובדות', 'לפני שנותנים לזה שם', 'PR']"
+      },
+      "BR-2": {
+        "points": 10,
+        "max": 10,
+        "why": "pattern words ['דפוס', 'תהליך', 'שערים', 'בדיקות', 'מערכת']; person-flaw []"
+      },
+      "BR-3": {
+        "points": 15,
+        "max": 15,
+        "why": "promise markers ['חוזרות אליהם', 'ברמה הנכונה', 'שיקול הדעת', 'צריכים אתכם']; say_phrases []"
+      },
+      "BR-4": {
+        "points": 10,
+        "max": 10,
+        "why": "AI present; human start=True end=True"
+      },
+      "BR-5": {
+        "points": 8,
+        "max": 15,
+        "why": "concrete but number-free (no approved facts used)"
+      },
+      "BR-6": {
+        "points": 10,
+        "max": 10,
+        "why": "move markers ['לשבוע הזה', 'צעד', 'קחו']"
+      },
+      "BR-7": {
+        "points": 10,
+        "max": 10,
+        "why": "start at 10; hype/cliché/exclamation penalties applied separately"
+      },
+      "BR-8": {
+        "points": 10,
+        "max": 10,
+        "why": "closing question (14 words, reader's own team=True)"
+      },
+      "BR-9": {
+        "points": 5,
+        "max": 5,
+        "why": "duplicate sentences 0; calque detection needs LLM"
+      }
+    },
+    "icp_components": {
+      "ICP-1": {
+        "points": 30,
+        "max": 30,
+        "why": "manager-lens markers ['הצוות שלכם', 'מנהלי פיתוח', 'המנהל', 'לצוות']"
+      },
+      "ICP-2": {
+        "points": 25,
+        "max": 25,
+        "why": "icp pain markers ['חוזרות אלי', 'מבט אחרון', 'חייב להיות בו', 'נוכחות', 'יומן']"
+      },
+      "ICP-3": {
+        "points": 20,
+        "max": 20,
+        "why": "leadership-decision markers ['החלט', 'שיקול הדעת', 'דרישה', 'אחריות', 'מחזיק']"
+      },
+      "ICP-4": {
+        "points": 5,
+        "max": 10,
+        "why": "explicit []; implied ['הצוות', 'סוכנים', 'סקירה']"
+      },
+      "ICP-5": {
+        "points": 10,
+        "max": 10,
+        "why": "org-design markers ['תהליך', 'שאלה של תכנון', 'שערים', 'בהרבה צוותים']"
+      },
+      "ICP-6": {
+        "points": 5,
+        "max": 5,
+        "why": "engineer-readable tokens ['PR', 'לינטר', 'טסט', 'פייפליין'] (bonus only)"
+      }
+    },
+    "penalties": 0,
+    "source_supports_wording": "n_a",
+    "adds_value": true,
+    "misleading_risk": "none detected by heuristics (LLM review pending)",
+    "recommend_reject": false,
+    "findings": [
+      {
+        "check_id": "L-04",
+        "type": "language",
+        "severity": "info",
+        "message": "HE brand_voice/icp seeds needs_review=true: HE say_phrases not required verbatim"
+      }
+    ]
+  },
+  "brand_score": 74,
+  "brand_score_uncapped": 93,
+  "icp_relevance_score": 95,
+  "findings": [
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "CoreAsset.id missing (assigned at DB insert; file mode)",
+      "field": "id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "CoreAsset.icp_profile_id missing (assigned at DB insert; file mode)",
+      "field": "icp_profile_id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "CoreAsset.brand_voice_id missing (assigned at DB insert; file mode)",
+      "field": "brand_voice_id"
+    },
+    {
+      "check_id": "S-02",
+      "type": "other",
+      "severity": "blocker",
+      "message": "unresolved placeholder '⟦ITAY_CONFIRM⟧'",
+      "field": "body",
+      "excerpt": "צורה: בני אדם בקצוות, דטרמיניזם באמצע.\n\n⟦ITAY_CONFIRM⟧ ככה אני מריץ גם את מערכת התוכן שלי: אני בוחר את התובנה, בדיקות אוטומטיות מדרגות",
+      "suggestion": "Resolve (Itay confirms the anecdote) or delete the paragraph before review."
+    },
+    {
+      "check_id": "L-01",
+      "type": "language",
+      "severity": "info",
+      "message": "HE letter ratio 1.00 (he=2389, latin=11 after tech allowlist) OK"
+    },
+    {
+      "check_id": "B-01",
+      "type": "fact",
+      "severity": "blocker",
+      "message": "unsupported claim (missing): no fact row matches this claim",
+      "field": "body",
+      "excerpt": "ב-Stripe כתבו על Minions, סוכני הקוד הפנימיים שלהם.",
+      "suggestion": "Get the fact approved (status=approved, public) and list its id, or remove/soften the claim."
+    },
+    {
+      "check_id": "C-08",
+      "type": "fact",
+      "severity": "info",
+      "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+    },
+    {
+      "check_id": "L-04",
+      "type": "language",
+      "severity": "info",
+      "message": "HE brand_voice/icp seeds needs_review=true: HE say_phrases not required verbatim"
+    }
+  ],
+  "unsupported_claims": [
+    "ב-Stripe כתבו על Minions, סוכני הקוד הפנימיים שלהם."
+  ],
+  "threshold_profile": "v0",
+  "brand_voice_version": 1,
+  "counts": {
+    "blocker": 2,
+    "major": 0,
+    "minor": 0,
+    "info": 6
+  },
+  "checked_at": "2026-11-03T16:52:35+02:00",
+  "checked_by": "guardian v0 (SpecGate+FactGate code; EditorialGuardian heuristic stub)",
+  "inputs": {
+    "facts": "guardian/fixtures/approved_facts_db.json",
+    "claims": null,
+    "twin": "runs/001-human-gates/core_asset_en.md",
+    "media_qa": null,
+    "strict": false
+  }
+}

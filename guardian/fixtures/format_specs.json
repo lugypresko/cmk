@@ -1,0 +1,336 @@
+[
+  {
+    "id": "71517cda-b62f-4a1e-9667-46521eccd246",
+    "format": "text_post",
+    "channel": "linkedin",
+    "language": "en",
+    "version": 1,
+    "is_active": true,
+    "min_chars": 600,
+    "max_chars": 2200,
+    "max_slides": null,
+    "structure": [
+      {
+        "desc": "first 1-2 lines, works before 'see more'; first line <=120 chars",
+        "section": "hook"
+      },
+      {
+        "desc": "evidence/scene first",
+        "section": "situation"
+      },
+      {
+        "desc": "name the working pattern, not a person's flaw",
+        "section": "pattern"
+      },
+      {
+        "desc": "one reversible move",
+        "section": "move"
+      },
+      {
+        "desc": "closing question; optional P.S. soft offer",
+        "section": "cta"
+      }
+    ],
+    "rules": [
+      {
+        "rule": "Hard max 3,000 chars (B-11).",
+        "source": "platform_limit_verify",
+        "severity": "block"
+      },
+      {
+        "rule": "Paragraphs <=3 lines / <=350 chars.",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "Links go in first comment.",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "<=3 hashtags, <=3 emojis.",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "Every number/claim maps to an approved+public fact in fact_ids (Guardian B-01).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "No pricing, client names, testimonials or viewer data (B-02/B-03/B-04/B-12).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "One closing question about the reader's own team/decision/process (CTA §8).",
+        "source": "guardian_rules",
+        "severity": "warn"
+      },
+      {
+        "rule": "EN: zero Hebrew characters; one spelling system.",
+        "source": "guardian_rules",
+        "severity": "block"
+      }
+    ],
+    "example_ids": [],
+    "created_at": "2026-11-03T14:44:21.950Z",
+    "updated_at": "2026-11-03T14:44:21.950Z",
+    "min_duration_s": null,
+    "max_duration_s": null,
+    "aspect_ratio": null,
+    "min_items": null,
+    "max_items": null,
+    "item_max_chars": null,
+    "requires_media": false,
+    "limits_verified": false,
+    "is_stub": false,
+    "notes": "v0 active recipe. Primary channel; other channels in format_registry.default_channels get their own rows when enabled."
+  },
+  {
+    "id": "c516f19f-4a2f-4436-b6be-d7789bd63aad",
+    "format": "text_post",
+    "channel": "linkedin",
+    "language": "he",
+    "version": 1,
+    "is_active": true,
+    "min_chars": 600,
+    "max_chars": 2200,
+    "max_slides": null,
+    "structure": [
+      {
+        "desc": "first 1-2 lines, works before 'see more'; first line <=120 chars",
+        "section": "hook"
+      },
+      {
+        "desc": "evidence/scene first",
+        "section": "situation"
+      },
+      {
+        "desc": "name the working pattern, not a person's flaw",
+        "section": "pattern"
+      },
+      {
+        "desc": "one reversible move",
+        "section": "move"
+      },
+      {
+        "desc": "closing question; optional P.S. soft offer",
+        "section": "cta"
+      }
+    ],
+    "rules": [
+      {
+        "rule": "Hard max 3,000 chars (B-11).",
+        "source": "platform_limit_verify",
+        "severity": "block"
+      },
+      {
+        "rule": "Paragraphs <=3 lines / <=350 chars.",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "Links go in first comment.",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "<=3 hashtags, <=3 emojis.",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "Every number/claim maps to an approved+public fact in fact_ids (Guardian B-01).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "No pricing, client names, testimonials or viewer data (B-02/B-03/B-04/B-12).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "One closing question about the reader's own team/decision/process (CTA §8).",
+        "source": "guardian_rules",
+        "severity": "warn"
+      },
+      {
+        "rule": "HE: >=60% Hebrew letters; plural/slash address (L-01..L-03). Adapt, don't translate.",
+        "source": "guardian_rules",
+        "severity": "block"
+      }
+    ],
+    "example_ids": [],
+    "created_at": "2026-11-03T14:44:21.950Z",
+    "updated_at": "2026-11-03T14:44:21.950Z",
+    "min_duration_s": null,
+    "max_duration_s": null,
+    "aspect_ratio": null,
+    "min_items": null,
+    "max_items": null,
+    "item_max_chars": null,
+    "requires_media": false,
+    "limits_verified": false,
+    "is_stub": false,
+    "notes": "v0 active recipe. Primary channel; other channels in format_registry.default_channels get their own rows when enabled."
+  },
+  {
+    "id": "55d06850-0636-4e6a-a473-9edfad059fee",
+    "format": "carousel",
+    "channel": "linkedin",
+    "language": "en",
+    "version": 1,
+    "is_active": true,
+    "min_chars": 150,
+    "max_chars": 1300,
+    "max_slides": 10,
+    "structure": [
+      {
+        "desc": "headline <=60 EN / <=50 HE",
+        "section": "slide_1_hook"
+      },
+      {
+        "desc": "one idea per slide; headline <=80, text <=300",
+        "section": "slides_2_to_n-1"
+      },
+      {
+        "desc": "CTA question = cta field",
+        "section": "last_slide_cta"
+      },
+      {
+        "desc": "body 150-1,300 chars, same language",
+        "section": "caption"
+      }
+    ],
+    "rules": [
+      {
+        "rule": "slides required, n sequential from 1 (B-11/F-C1).",
+        "source": "house_default",
+        "severity": "block"
+      },
+      {
+        "rule": "> max_slides blocks.",
+        "source": "house_default",
+        "severity": "block"
+      },
+      {
+        "rule": "HE: RTL render by PackageBuilder; no headline starting with an English token (F-C7).",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "Every number/claim maps to an approved+public fact in fact_ids (Guardian B-01).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "No pricing, client names, testimonials or viewer data (B-02/B-03/B-04/B-12).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "One closing question about the reader's own team/decision/process (CTA §8).",
+        "source": "guardian_rules",
+        "severity": "warn"
+      },
+      {
+        "rule": "EN: zero Hebrew characters; one spelling system.",
+        "source": "guardian_rules",
+        "severity": "block"
+      }
+    ],
+    "example_ids": [],
+    "created_at": "2026-11-03T14:44:21.950Z",
+    "updated_at": "2026-11-03T14:44:21.950Z",
+    "min_duration_s": null,
+    "max_duration_s": null,
+    "aspect_ratio": "4:5",
+    "min_items": 5,
+    "max_items": 10,
+    "item_max_chars": 300,
+    "requires_media": true,
+    "limits_verified": false,
+    "is_stub": false,
+    "notes": "v0 active recipe. Primary channel; other channels in format_registry.default_channels get their own rows when enabled."
+  },
+  {
+    "id": "bc054f8f-6228-4c75-880e-2bae34c46ec7",
+    "format": "carousel",
+    "channel": "linkedin",
+    "language": "he",
+    "version": 1,
+    "is_active": true,
+    "min_chars": 150,
+    "max_chars": 1300,
+    "max_slides": 10,
+    "structure": [
+      {
+        "desc": "headline <=60 EN / <=50 HE",
+        "section": "slide_1_hook"
+      },
+      {
+        "desc": "one idea per slide; headline <=80, text <=300",
+        "section": "slides_2_to_n-1"
+      },
+      {
+        "desc": "CTA question = cta field",
+        "section": "last_slide_cta"
+      },
+      {
+        "desc": "body 150-1,300 chars, same language",
+        "section": "caption"
+      }
+    ],
+    "rules": [
+      {
+        "rule": "slides required, n sequential from 1 (B-11/F-C1).",
+        "source": "house_default",
+        "severity": "block"
+      },
+      {
+        "rule": "> max_slides blocks.",
+        "source": "house_default",
+        "severity": "block"
+      },
+      {
+        "rule": "HE: RTL render by PackageBuilder; no headline starting with an English token (F-C7).",
+        "source": "house_default",
+        "severity": "warn"
+      },
+      {
+        "rule": "Every number/claim maps to an approved+public fact in fact_ids (Guardian B-01).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "No pricing, client names, testimonials or viewer data (B-02/B-03/B-04/B-12).",
+        "source": "guardian_rules",
+        "severity": "block"
+      },
+      {
+        "rule": "One closing question about the reader's own team/decision/process (CTA §8).",
+        "source": "guardian_rules",
+        "severity": "warn"
+      },
+      {
+        "rule": "HE: >=60% Hebrew letters; plural/slash address (L-01..L-03). Adapt, don't translate.",
+        "source": "guardian_rules",
+        "severity": "block"
+      }
+    ],
+    "example_ids": [],
+    "created_at": "2026-11-03T14:44:21.950Z",
+    "updated_at": "2026-11-03T14:44:21.950Z",
+    "min_duration_s": null,
+    "max_duration_s": null,
+    "aspect_ratio": "4:5",
+    "min_items": 5,
+    "max_items": 10,
+    "item_max_chars": 300,
+    "requires_media": true,
+    "limits_verified": false,
+    "is_stub": false,
+    "notes": "v0 active recipe. Primary channel; other channels in format_registry.default_channels get their own rows when enabled."
+  }
+]

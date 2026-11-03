@@ -1,0 +1,303 @@
+{
+  "$schema": "cmk/GuardianReport.v2",
+  "piece": {
+    "source_path": "runs/001-human-gates/core_asset_en.md",
+    "source_sha256": "c052fff7cec0019c4e187ae60869f137dac5f34af622c127079b121be0ae40c6",
+    "variant": "A",
+    "loader_notes": [],
+    "contract": "cmk/CoreAsset",
+    "format": "core_asset",
+    "channel": null,
+    "language": "en",
+    "revision": 1,
+    "status_in_file": "draft",
+    "approved_by_in_file": null
+  },
+  "gate_verdict": "block",
+  "verdict": "needs_changes",
+  "verdict_reason": "code gate blocked (SpecGate, FactGate)",
+  "spec": {
+    "pass": false,
+    "verdict": "block",
+    "checklist_version": 1,
+    "format_spec_id": null,
+    "findings": [
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "CoreAsset.id missing (assigned at DB insert; file mode)",
+        "field": "id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "CoreAsset.icp_profile_id missing (assigned at DB insert; file mode)",
+        "field": "icp_profile_id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "CoreAsset.brand_voice_id missing (assigned at DB insert; file mode)",
+        "field": "brand_voice_id"
+      },
+      {
+        "check_id": "S-02",
+        "type": "other",
+        "severity": "blocker",
+        "message": "unresolved placeholder '⟦ITAY_CONFIRM⟧'",
+        "field": "body",
+        "excerpt": " at the edges, determinism in between.\n\n⟦ITAY_CONFIRM⟧ I'm running my own content system the same way: I choose the insight, automated",
+        "suggestion": "Resolve (Itay confirms the anecdote) or delete the paragraph before review."
+      }
+    ]
+  },
+  "fact": {
+    "pass": false,
+    "verdict": "block",
+    "claims": [
+      {
+        "text": "A pattern I keep hearing from dev managers who brought agents into their teams: output went up, and the decisions still came back to them.",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker"
+        ],
+        "fact_id": null,
+        "status": null
+      },
+      {
+        "text": "In many teams I talk to, the manager sits in the middle: reviewing intermediate steps, approving drafts, answering \"is this OK?\" in Slack.",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker",
+          "generalisation"
+        ],
+        "fact_id": null,
+        "status": null
+      },
+      {
+        "text": "Stripe has written about \"Minions\", its in-house coding agents.",
+        "field": "body",
+        "kind": "fact",
+        "signals": [
+          "third_party:Stripe"
+        ],
+        "fact_id": null,
+        "status": "missing",
+        "reason": "no fact row matches this claim"
+      },
+      {
+        "text": "What I find useful there isn't the scale.",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker"
+        ],
+        "fact_id": null,
+        "status": null
+      },
+      {
+        "text": "⟦ITAY_CONFIRM⟧ I'm running my own content system the same way:",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker"
+        ],
+        "fact_id": null,
+        "status": null
+      }
+    ],
+    "unsupported_claims": [
+      "Stripe has written about \"Minions\", its in-house coding agents."
+    ],
+    "findings": [
+      {
+        "check_id": "B-01",
+        "type": "fact",
+        "severity": "blocker",
+        "message": "unsupported claim (missing): no fact row matches this claim",
+        "field": "body",
+        "excerpt": "Stripe has written about \"Minions\", its in-house coding agents.",
+        "suggestion": "Get the fact approved (status=approved, public) and list its id, or remove/soften the claim."
+      },
+      {
+        "check_id": "C-08",
+        "type": "fact",
+        "severity": "info",
+        "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+      }
+    ],
+    "facts_considered": {
+      "total": 6,
+      "usable": 0,
+      "statuses": [
+        "draft"
+      ]
+    }
+  },
+  "editorial": {
+    "scorer": "heuristic-stub-v0",
+    "note": "Heuristic stub for calibration only. Production EditorialGuardian calls an LLM with the guardian_rules.md rubric.",
+    "brand_score": 93,
+    "icp_relevance_score": 100,
+    "brand_components": {
+      "BR-1": {
+        "points": 15,
+        "max": 15,
+        "why": "evidence/scene markers: ['I keep hearing', \"That's the evidence\", 'Before giving it a name', 'PR', 'pull request']"
+      },
+      "BR-2": {
+        "points": 10,
+        "max": 10,
+        "why": "pattern words ['pattern', 'flow', 'gates', 'checks', 'system']; person-flaw []"
+      },
+      "BR-3": {
+        "points": 15,
+        "max": 15,
+        "why": "promise markers ['came back to them', 'right level', 'owns the judgment', \"where you're needed\"]; say_phrases ['one real situation', 'accountability quietly turned into being present']"
+      },
+      "BR-4": {
+        "points": 10,
+        "max": 10,
+        "why": "AI present; human start=True end=True"
+      },
+      "BR-5": {
+        "points": 8,
+        "max": 15,
+        "why": "concrete but number-free (no approved facts used)"
+      },
+      "BR-6": {
+        "points": 10,
+        "max": 10,
+        "why": "move markers ['this week', 'One reversible move', 'Take one']"
+      },
+      "BR-7": {
+        "points": 10,
+        "max": 10,
+        "why": "start at 10; hype/cliché/exclamation penalties applied separately"
+      },
+      "BR-8": {
+        "points": 10,
+        "max": 10,
+        "why": "closing question (22 words, reader's own team=True)"
+      },
+      "BR-9": {
+        "points": 5,
+        "max": 5,
+        "why": "duplicate sentences 0; calque detection needs LLM"
+      }
+    },
+    "icp_components": {
+      "ICP-1": {
+        "points": 30,
+        "max": 30,
+        "why": "manager-lens markers ['your team', 'dev managers', 'manager']"
+      },
+      "ICP-2": {
+        "points": 25,
+        "max": 25,
+        "why": "icp pain markers ['came back to them', 'one last look', 'has to attend', 'being present', 'calendar']"
+      },
+      "ICP-3": {
+        "points": 20,
+        "max": 20,
+        "why": "leadership-decision markers ['decision', 'judgment', 'requirement', 'Accountab', 'owns']"
+      },
+      "ICP-4": {
+        "points": 10,
+        "max": 10,
+        "why": "explicit ['scale']; implied ['your team', 'agents', 'review']"
+      },
+      "ICP-5": {
+        "points": 10,
+        "max": 10,
+        "why": "org-design markers ['flow', 'design question', 'gates', 'In many teams']"
+      },
+      "ICP-6": {
+        "points": 5,
+        "max": 5,
+        "why": "engineer-readable tokens ['PR', 'lints', 'test', 'pipeline'] (bonus only)"
+      }
+    },
+    "penalties": 0,
+    "source_supports_wording": "n_a",
+    "adds_value": true,
+    "misleading_risk": "none detected by heuristics (LLM review pending)",
+    "recommend_reject": false,
+    "findings": []
+  },
+  "brand_score": 74,
+  "brand_score_uncapped": 93,
+  "icp_relevance_score": 100,
+  "findings": [
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "CoreAsset.id missing (assigned at DB insert; file mode)",
+      "field": "id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "CoreAsset.icp_profile_id missing (assigned at DB insert; file mode)",
+      "field": "icp_profile_id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "CoreAsset.brand_voice_id missing (assigned at DB insert; file mode)",
+      "field": "brand_voice_id"
+    },
+    {
+      "check_id": "S-02",
+      "type": "other",
+      "severity": "blocker",
+      "message": "unresolved placeholder '⟦ITAY_CONFIRM⟧'",
+      "field": "body",
+      "excerpt": " at the edges, determinism in between.\n\n⟦ITAY_CONFIRM⟧ I'm running my own content system the same way: I choose the insight, automated",
+      "suggestion": "Resolve (Itay confirms the anecdote) or delete the paragraph before review."
+    },
+    {
+      "check_id": "B-01",
+      "type": "fact",
+      "severity": "blocker",
+      "message": "unsupported claim (missing): no fact row matches this claim",
+      "field": "body",
+      "excerpt": "Stripe has written about \"Minions\", its in-house coding agents.",
+      "suggestion": "Get the fact approved (status=approved, public) and list its id, or remove/soften the claim."
+    },
+    {
+      "check_id": "C-08",
+      "type": "fact",
+      "severity": "info",
+      "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+    }
+  ],
+  "unsupported_claims": [
+    "Stripe has written about \"Minions\", its in-house coding agents."
+  ],
+  "threshold_profile": "v0",
+  "brand_voice_version": 1,
+  "counts": {
+    "blocker": 2,
+    "major": 0,
+    "minor": 0,
+    "info": 4
+  },
+  "checked_at": "2026-11-03T16:52:35+02:00",
+  "checked_by": "guardian v0 (SpecGate+FactGate code; EditorialGuardian heuristic stub)",
+  "inputs": {
+    "facts": "guardian/fixtures/approved_facts_db.json",
+    "claims": null,
+    "twin": "runs/001-human-gates/core_asset_he.md",
+    "media_qa": null,
+    "strict": false
+  }
+}

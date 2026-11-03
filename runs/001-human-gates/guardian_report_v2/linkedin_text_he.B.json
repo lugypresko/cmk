@@ -1,0 +1,298 @@
+{
+  "$schema": "cmk/GuardianReport.v2",
+  "piece": {
+    "source_path": "runs/001-human-gates/linkedin_text_he.md",
+    "source_sha256": "d4f525db3bac17d303b62aa2a0bc5c52163ef80a03a7da47619957a2c70883e4",
+    "variant": "B",
+    "loader_notes": [
+      "variant B: paragraphs with ⟦STRIPE⟧/⟦NEED_APPROVED_FACT⟧ removed"
+    ],
+    "contract": "cmk/ContentPiece",
+    "format": "text_post",
+    "channel": "linkedin",
+    "language": "he",
+    "revision": 1,
+    "status_in_file": "approved",
+    "approved_by_in_file": "Itay"
+  },
+  "gate_verdict": "pass",
+  "verdict": "pass",
+  "verdict_reason": "gates pass; brand 88>=75 and ICP 95>=70",
+  "spec": {
+    "pass": true,
+    "verdict": "pass",
+    "checklist_version": 1,
+    "format_spec_id": "c516f19f-4a2f-4436-b6be-d7789bd63aad",
+    "findings": [
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.id missing (assigned at DB insert; file mode)",
+        "field": "id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.core_asset_id missing (assigned at DB insert; file mode)",
+        "field": "core_asset_id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.format_spec_id missing (assigned at DB insert; file mode)",
+        "field": "format_spec_id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "major",
+        "message": "status=approved requires brand_score, icp_relevance_score (DB CHECK would reject this row)",
+        "field": "status",
+        "suggestion": "Store this GuardianReport's scores with the row before insert."
+      },
+      {
+        "check_id": "S-03",
+        "type": "format",
+        "severity": "info",
+        "message": "format_specs.limits_verified=false (platform limits are house defaults, not re-verified)"
+      },
+      {
+        "check_id": "L-01",
+        "type": "language",
+        "severity": "info",
+        "message": "HE letter ratio 1.00 (he=865, latin=0 after tech allowlist) OK"
+      },
+      {
+        "check_id": "B-09",
+        "type": "other",
+        "severity": "info",
+        "message": "approved_by=Itay (human). File mode cannot verify the actor; DB trigger enforces cmk.actor_type=human."
+      }
+    ]
+  },
+  "fact": {
+    "pass": true,
+    "verdict": "pass",
+    "claims": [
+      {
+        "text": "אני שומע את זה שוב ושוב ממנהלי פיתוח.",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker"
+        ],
+        "fact_id": null,
+        "status": null
+      },
+      {
+        "text": "בהרבה צוותים המנהל יושב באמצע:",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "generalisation"
+        ],
+        "fact_id": null,
+        "status": null
+      }
+    ],
+    "unsupported_claims": [],
+    "findings": [
+      {
+        "check_id": "C-08",
+        "type": "fact",
+        "severity": "info",
+        "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+      }
+    ],
+    "facts_considered": {
+      "total": 6,
+      "usable": 0,
+      "statuses": [
+        "draft"
+      ]
+    }
+  },
+  "editorial": {
+    "scorer": "heuristic-stub-v0",
+    "note": "Heuristic stub for calibration only. Production EditorialGuardian calls an LLM with the guardian_rules.md rubric.",
+    "brand_score": 88,
+    "icp_relevance_score": 95,
+    "brand_components": {
+      "BR-1": {
+        "points": 15,
+        "max": 15,
+        "why": "evidence/scene markers: ['אני שומע', 'שוב ושוב', 'לפני שנותנים לזה שם', 'PR', 'סלאק']"
+      },
+      "BR-2": {
+        "points": 10,
+        "max": 10,
+        "why": "pattern words ['דפוס', 'תהליך', 'שערים', 'בדיקות']; person-flaw []"
+      },
+      "BR-3": {
+        "points": 10,
+        "max": 15,
+        "why": "promise markers ['ברמה הנכונה', 'שיקול הדעת']; say_phrases []"
+      },
+      "BR-4": {
+        "points": 10,
+        "max": 10,
+        "why": "AI present; human start=True end=True"
+      },
+      "BR-5": {
+        "points": 8,
+        "max": 15,
+        "why": "concrete but number-free (no approved facts used)"
+      },
+      "BR-6": {
+        "points": 10,
+        "max": 10,
+        "why": "move markers ['לשבוע הזה', 'צעד', 'קחו']"
+      },
+      "BR-7": {
+        "points": 10,
+        "max": 10,
+        "why": "start at 10; hype/cliché/exclamation penalties applied separately"
+      },
+      "BR-8": {
+        "points": 10,
+        "max": 10,
+        "why": "closing question (14 words, reader's own team=True)"
+      },
+      "BR-9": {
+        "points": 5,
+        "max": 5,
+        "why": "duplicate sentences 0; calque detection needs LLM"
+      }
+    },
+    "icp_components": {
+      "ICP-1": {
+        "points": 30,
+        "max": 30,
+        "why": "manager-lens markers ['הצוות שלכם', 'מנהלי פיתוח', 'המנהל']"
+      },
+      "ICP-2": {
+        "points": 25,
+        "max": 25,
+        "why": "icp pain markers ['מבט האחרון', 'נוכחות', 'יומן', 'ממשיכה לחזור']"
+      },
+      "ICP-3": {
+        "points": 20,
+        "max": 20,
+        "why": "leadership-decision markers ['שיקול הדעת', 'דרישה', 'אחריות', 'מחזיק']"
+      },
+      "ICP-4": {
+        "points": 5,
+        "max": 10,
+        "why": "explicit []; implied ['הצוות', 'סוכנים', 'סקירה']"
+      },
+      "ICP-5": {
+        "points": 10,
+        "max": 10,
+        "why": "org-design markers ['תהליך', 'שערים', 'בהרבה צוותים']"
+      },
+      "ICP-6": {
+        "points": 5,
+        "max": 5,
+        "why": "engineer-readable tokens ['PR', 'לינטר', 'טסט'] (bonus only)"
+      }
+    },
+    "penalties": 0,
+    "source_supports_wording": "n_a",
+    "adds_value": true,
+    "misleading_risk": "none detected by heuristics (LLM review pending)",
+    "recommend_reject": false,
+    "findings": [
+      {
+        "check_id": "L-04",
+        "type": "language",
+        "severity": "info",
+        "message": "HE brand_voice/icp seeds needs_review=true: HE say_phrases not required verbatim"
+      }
+    ]
+  },
+  "brand_score": 88,
+  "brand_score_uncapped": 88,
+  "icp_relevance_score": 95,
+  "findings": [
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.id missing (assigned at DB insert; file mode)",
+      "field": "id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.core_asset_id missing (assigned at DB insert; file mode)",
+      "field": "core_asset_id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.format_spec_id missing (assigned at DB insert; file mode)",
+      "field": "format_spec_id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "major",
+      "message": "status=approved requires brand_score, icp_relevance_score (DB CHECK would reject this row)",
+      "field": "status",
+      "suggestion": "Store this GuardianReport's scores with the row before insert."
+    },
+    {
+      "check_id": "S-03",
+      "type": "format",
+      "severity": "info",
+      "message": "format_specs.limits_verified=false (platform limits are house defaults, not re-verified)"
+    },
+    {
+      "check_id": "L-01",
+      "type": "language",
+      "severity": "info",
+      "message": "HE letter ratio 1.00 (he=865, latin=0 after tech allowlist) OK"
+    },
+    {
+      "check_id": "B-09",
+      "type": "other",
+      "severity": "info",
+      "message": "approved_by=Itay (human). File mode cannot verify the actor; DB trigger enforces cmk.actor_type=human."
+    },
+    {
+      "check_id": "C-08",
+      "type": "fact",
+      "severity": "info",
+      "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+    },
+    {
+      "check_id": "L-04",
+      "type": "language",
+      "severity": "info",
+      "message": "HE brand_voice/icp seeds needs_review=true: HE say_phrases not required verbatim"
+    }
+  ],
+  "unsupported_claims": [],
+  "threshold_profile": "v0",
+  "brand_voice_version": 1,
+  "counts": {
+    "blocker": 0,
+    "major": 1,
+    "minor": 0,
+    "info": 8
+  },
+  "checked_at": "2026-11-03T16:52:34+02:00",
+  "checked_by": "guardian v0 (SpecGate+FactGate code; EditorialGuardian heuristic stub)",
+  "inputs": {
+    "facts": "guardian/fixtures/approved_facts_db.json",
+    "claims": null,
+    "twin": "runs/001-human-gates/linkedin_text_en.md",
+    "media_qa": null,
+    "strict": false
+  }
+}

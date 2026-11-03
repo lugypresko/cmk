@@ -1,0 +1,200 @@
+{
+  "run": "001-human-gates",
+  "generated_at": "2026-11-03T16:52:35+02:00",
+  "facts_source": "guardian/fixtures/approved_facts_db.json (local PGlite export; 0 approved facts, 6 draft site facts)",
+  "editorial_scorer": "heuristic-stub-v0 (not the production LLM scorer)",
+  "pieces": [
+    {
+      "file": "carousel_en.A.json",
+      "piece": "runs/001-human-gates/carousel_en.md",
+      "variant": "A",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 93,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "B-01",
+        "R-01"
+      ],
+      "majors": []
+    },
+    {
+      "file": "carousel_en.B.json",
+      "piece": "runs/001-human-gates/carousel_en.md",
+      "variant": "B",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 86,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "R-01"
+      ],
+      "majors": []
+    },
+    {
+      "file": "carousel_he.A.json",
+      "piece": "runs/001-human-gates/carousel_he.md",
+      "variant": "A",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 93,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "B-01",
+        "R-01"
+      ],
+      "majors": []
+    },
+    {
+      "file": "carousel_he.B.json",
+      "piece": "runs/001-human-gates/carousel_he.md",
+      "variant": "B",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 86,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "R-01"
+      ],
+      "majors": []
+    },
+    {
+      "file": "core_asset_en.A.json",
+      "piece": "runs/001-human-gates/core_asset_en.md",
+      "variant": "A",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 93,
+      "icp_relevance_score": 100,
+      "blockers": [
+        "B-01",
+        "S-02"
+      ],
+      "majors": []
+    },
+    {
+      "file": "core_asset_en.B.json",
+      "piece": "runs/001-human-gates/core_asset_en.md",
+      "variant": "B",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 93,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "S-02"
+      ],
+      "majors": []
+    },
+    {
+      "file": "core_asset_he.A.json",
+      "piece": "runs/001-human-gates/core_asset_he.md",
+      "variant": "A",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 93,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "B-01",
+        "S-02"
+      ],
+      "majors": []
+    },
+    {
+      "file": "core_asset_he.B.json",
+      "piece": "runs/001-human-gates/core_asset_he.md",
+      "variant": "B",
+      "status_in_file": "draft",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 93,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "S-02"
+      ],
+      "majors": []
+    },
+    {
+      "file": "linkedin_text_en.A.json",
+      "piece": "runs/001-human-gates/linkedin_text_en.md",
+      "variant": "A",
+      "status_in_file": "approved",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 91,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "B-01"
+      ],
+      "majors": [
+        "E-DUP",
+        "F-T1",
+        "S-01"
+      ]
+    },
+    {
+      "file": "linkedin_text_en.B.json",
+      "piece": "runs/001-human-gates/linkedin_text_en.md",
+      "variant": "B",
+      "status_in_file": "approved",
+      "gate_verdict": "pass",
+      "verdict": "needs_changes",
+      "brand_score": 91,
+      "brand_score_uncapped": 91,
+      "icp_relevance_score": 95,
+      "blockers": [],
+      "majors": [
+        "E-DUP",
+        "F-T1",
+        "S-01"
+      ]
+    },
+    {
+      "file": "linkedin_text_he.A.json",
+      "piece": "runs/001-human-gates/linkedin_text_he.md",
+      "variant": "A",
+      "status_in_file": "approved",
+      "gate_verdict": "block",
+      "verdict": "needs_changes",
+      "brand_score": 74,
+      "brand_score_uncapped": 88,
+      "icp_relevance_score": 95,
+      "blockers": [
+        "B-01"
+      ],
+      "majors": [
+        "S-01"
+      ]
+    },
+    {
+      "file": "linkedin_text_he.B.json",
+      "piece": "runs/001-human-gates/linkedin_text_he.md",
+      "variant": "B",
+      "status_in_file": "approved",
+      "gate_verdict": "pass",
+      "verdict": "pass",
+      "brand_score": 88,
+      "brand_score_uncapped": 88,
+      "icp_relevance_score": 95,
+      "blockers": [],
+      "majors": [
+        "S-01"
+      ]
+    }
+  ]
+}

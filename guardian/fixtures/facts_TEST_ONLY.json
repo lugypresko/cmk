@@ -1,0 +1,14 @@
+{
+  "_note": "TEST-ONLY synthetic fixture for unit tests. NOT real approvals. Ids are fake. Never use for run scoring.",
+  "facts": [
+    {"id": "00000000-0000-4000-8000-000000000001", "fact_key": "credential.years", "category": "credential",
+     "statement_en": "25+ years in technology and delivery.", "statement_he": "25+ שנים בטכנולוגיה ובדליברי.",
+     "status": "approved", "confidentiality": "public", "valid_until": null, "usage_scope": ["public_posts"]},
+    {"id": "00000000-0000-4000-8000-000000000002", "fact_key": "credential.hours", "category": "credential",
+     "statement_en": "1000+ coaching hours.", "statement_he": "1000+ שעות אימון.",
+     "status": "approved", "confidentiality": "public", "valid_until": "2020-01-01T00:00:00Z", "usage_scope": ["public_posts"]},
+    {"id": "00000000-0000-4000-8000-000000000003", "fact_key": "offering.structure", "category": "offering",
+     "statement_en": "12 weeks, 6 private 1:1 sessions, 1 problem worth changing.", "statement_he": "",
+     "status": "draft", "confidentiality": "public", "valid_until": null, "usage_scope": ["public_posts"]}
+  ]
+}

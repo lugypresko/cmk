@@ -1,0 +1,322 @@
+{
+  "$schema": "cmk/GuardianReport.v2",
+  "piece": {
+    "source_path": "runs/001-human-gates/linkedin_text_en.md",
+    "source_sha256": "42656d44db801bc5027c3e64a3bdf43255bb42d5e99eb4d7c49c7762c332b2e3",
+    "variant": "B",
+    "loader_notes": [
+      "variant B: paragraphs with ⟦STRIPE⟧/⟦NEED_APPROVED_FACT⟧ removed"
+    ],
+    "contract": "cmk/ContentPiece",
+    "format": "text_post",
+    "channel": "linkedin",
+    "language": "en",
+    "revision": 1,
+    "status_in_file": "approved",
+    "approved_by_in_file": "Itay"
+  },
+  "gate_verdict": "pass",
+  "verdict": "needs_changes",
+  "verdict_reason": "no blockers, but major findings need a fix or explicit human waiver: E-DUP, F-T1",
+  "spec": {
+    "pass": true,
+    "verdict": "pass",
+    "checklist_version": 1,
+    "format_spec_id": "71517cda-b62f-4a1e-9667-46521eccd246",
+    "findings": [
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.id missing (assigned at DB insert; file mode)",
+        "field": "id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.core_asset_id missing (assigned at DB insert; file mode)",
+        "field": "core_asset_id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "info",
+        "message": "ContentPiece.format_spec_id missing (assigned at DB insert; file mode)",
+        "field": "format_spec_id"
+      },
+      {
+        "check_id": "S-01",
+        "type": "format",
+        "severity": "major",
+        "message": "status=approved requires brand_score, icp_relevance_score (DB CHECK would reject this row)",
+        "field": "status",
+        "suggestion": "Store this GuardianReport's scores with the row before insert."
+      },
+      {
+        "check_id": "S-03",
+        "type": "format",
+        "severity": "info",
+        "message": "format_specs.limits_verified=false (platform limits are house defaults, not re-verified)"
+      },
+      {
+        "check_id": "B-09",
+        "type": "other",
+        "severity": "info",
+        "message": "approved_by=Itay (human). File mode cannot verify the actor; DB trigger enforces cmk.actor_type=human."
+      },
+      {
+        "check_id": "F-T1",
+        "type": "format",
+        "severity": "major",
+        "message": "hook does not equal the start of body",
+        "field": "hook",
+        "excerpt": "hook='The agent finished the PR. Then it waited for your \"one last look\".' | body starts='Your team brought in AI agents. Output went up. The decisions still come back to you. I ke'",
+        "suggestion": "Make body open with the approved hook (or update the hook field)."
+      },
+      {
+        "check_id": "F-T3",
+        "type": "format",
+        "severity": "minor",
+        "message": "paragraph 381 chars > 350 (house default)",
+        "excerpt": "The pattern worth testing is the reverse:\n→ Start: a human owns the requirement."
+      }
+    ]
+  },
+  "fact": {
+    "pass": true,
+    "verdict": "pass",
+    "claims": [
+      {
+        "text": "I keep hearing this from dev managers.",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "experience_marker"
+        ],
+        "fact_id": null,
+        "status": null
+      },
+      {
+        "text": "In many teams, the manager sits in the middle: reviewing steps, approving drafts, answering \"is this OK?\" in Slack.",
+        "field": "body",
+        "kind": "experience",
+        "signals": [
+          "generalisation"
+        ],
+        "fact_id": null,
+        "status": null
+      }
+    ],
+    "unsupported_claims": [],
+    "findings": [
+      {
+        "check_id": "C-08",
+        "type": "fact",
+        "severity": "info",
+        "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+      }
+    ],
+    "facts_considered": {
+      "total": 6,
+      "usable": 0,
+      "statuses": [
+        "draft"
+      ]
+    }
+  },
+  "editorial": {
+    "scorer": "heuristic-stub-v0",
+    "note": "Heuristic stub for calibration only. Production EditorialGuardian calls an LLM with the guardian_rules.md rubric.",
+    "brand_score": 91,
+    "icp_relevance_score": 95,
+    "brand_components": {
+      "BR-1": {
+        "points": 15,
+        "max": 15,
+        "why": "evidence/scene markers: ['I keep hearing', 'Before naming', 'PR', 'Slack', 'sync']"
+      },
+      "BR-2": {
+        "points": 10,
+        "max": 10,
+        "why": "pattern words ['pattern', 'flow', 'gates', 'checks']; person-flaw []"
+      },
+      "BR-3": {
+        "points": 15,
+        "max": 15,
+        "why": "promise markers ['come back to you', 'right level', 'owns the judgment']; say_phrases ['needed at the right level', 'decisions still come back to you', 'accountability quietly turned into being present']"
+      },
+      "BR-4": {
+        "points": 10,
+        "max": 10,
+        "why": "AI present; human start=True end=True"
+      },
+      "BR-5": {
+        "points": 8,
+        "max": 15,
+        "why": "concrete but number-free (no approved facts used)"
+      },
+      "BR-6": {
+        "points": 10,
+        "max": 10,
+        "why": "move markers ['this week', 'One move', 'take one']"
+      },
+      "BR-7": {
+        "points": 10,
+        "max": 10,
+        "why": "start at 10; hype/cliché/exclamation penalties applied separately"
+      },
+      "BR-8": {
+        "points": 10,
+        "max": 10,
+        "why": "closing question (22 words, reader's own team=True)"
+      },
+      "BR-9": {
+        "points": 3,
+        "max": 5,
+        "why": "duplicate sentences 1; calque detection needs LLM"
+      }
+    },
+    "icp_components": {
+      "ICP-1": {
+        "points": 30,
+        "max": 30,
+        "why": "manager-lens markers ['Your team', 'dev managers', 'managers']"
+      },
+      "ICP-2": {
+        "points": 25,
+        "max": 25,
+        "why": "icp pain markers ['come back to you', 'one last look', 'sync you have to attend', 'being present', 'calendar']"
+      },
+      "ICP-3": {
+        "points": 20,
+        "max": 20,
+        "why": "leadership-decision markers ['decision', 'judgment', 'requirement', 'Accountab', 'owns']"
+      },
+      "ICP-4": {
+        "points": 5,
+        "max": 10,
+        "why": "explicit []; implied ['Your team', 'agents', 'review']"
+      },
+      "ICP-5": {
+        "points": 10,
+        "max": 10,
+        "why": "org-design markers ['flow', 'gates', 'In many teams']"
+      },
+      "ICP-6": {
+        "points": 5,
+        "max": 5,
+        "why": "engineer-readable tokens ['PR', 'Lints', 'test'] (bonus only)"
+      }
+    },
+    "penalties": 0,
+    "source_supports_wording": "n_a",
+    "adds_value": true,
+    "misleading_risk": "none detected by heuristics (LLM review pending)",
+    "recommend_reject": false,
+    "findings": [
+      {
+        "check_id": "E-DUP",
+        "type": "voice",
+        "severity": "major",
+        "message": "near-duplicate sentence (same idea said twice)",
+        "excerpt": "The agents produce more, so more lands on the same desk.",
+        "suggestion": "Keep one of the two 'same desk' sentences."
+      }
+    ]
+  },
+  "brand_score": 91,
+  "brand_score_uncapped": 91,
+  "icp_relevance_score": 95,
+  "findings": [
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.id missing (assigned at DB insert; file mode)",
+      "field": "id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.core_asset_id missing (assigned at DB insert; file mode)",
+      "field": "core_asset_id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "info",
+      "message": "ContentPiece.format_spec_id missing (assigned at DB insert; file mode)",
+      "field": "format_spec_id"
+    },
+    {
+      "check_id": "S-01",
+      "type": "format",
+      "severity": "major",
+      "message": "status=approved requires brand_score, icp_relevance_score (DB CHECK would reject this row)",
+      "field": "status",
+      "suggestion": "Store this GuardianReport's scores with the row before insert."
+    },
+    {
+      "check_id": "S-03",
+      "type": "format",
+      "severity": "info",
+      "message": "format_specs.limits_verified=false (platform limits are house defaults, not re-verified)"
+    },
+    {
+      "check_id": "B-09",
+      "type": "other",
+      "severity": "info",
+      "message": "approved_by=Itay (human). File mode cannot verify the actor; DB trigger enforces cmk.actor_type=human."
+    },
+    {
+      "check_id": "F-T1",
+      "type": "format",
+      "severity": "major",
+      "message": "hook does not equal the start of body",
+      "field": "hook",
+      "excerpt": "hook='The agent finished the PR. Then it waited for your \"one last look\".' | body starts='Your team brought in AI agents. Output went up. The decisions still come back to you. I ke'",
+      "suggestion": "Make body open with the approved hook (or update the hook field)."
+    },
+    {
+      "check_id": "F-T3",
+      "type": "format",
+      "severity": "minor",
+      "message": "paragraph 381 chars > 350 (house default)",
+      "excerpt": "The pattern worth testing is the reverse:\n→ Start: a human owns the requirement."
+    },
+    {
+      "check_id": "C-08",
+      "type": "fact",
+      "severity": "info",
+      "message": "pending_fact_keys lists proof.stripe_minions.pattern (not approved; the text in this variant must not rely on it)"
+    },
+    {
+      "check_id": "E-DUP",
+      "type": "voice",
+      "severity": "major",
+      "message": "near-duplicate sentence (same idea said twice)",
+      "excerpt": "The agents produce more, so more lands on the same desk.",
+      "suggestion": "Keep one of the two 'same desk' sentences."
+    }
+  ],
+  "unsupported_claims": [],
+  "threshold_profile": "v0",
+  "brand_voice_version": 1,
+  "counts": {
+    "blocker": 0,
+    "major": 3,
+    "minor": 1,
+    "info": 6
+  },
+  "checked_at": "2026-11-03T16:52:34+02:00",
+  "checked_by": "guardian v0 (SpecGate+FactGate code; EditorialGuardian heuristic stub)",
+  "inputs": {
+    "facts": "guardian/fixtures/approved_facts_db.json",
+    "claims": null,
+    "twin": "runs/001-human-gates/linkedin_text_he.md",
+    "media_qa": null,
+    "strict": false
+  }
+}

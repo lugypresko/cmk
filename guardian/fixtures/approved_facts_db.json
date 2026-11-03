@@ -1,0 +1,102 @@
+{
+  "_note": "Exported from local PGlite cmk.approved_facts. ALL rows are status=draft (site facts, not yet approved by Itay). FactGate only accepts status=approved AND confidentiality=public AND unexpired. No Stripe/proof facts exist.",
+  "exported_at": "2026-11-03T14:52:34.219Z",
+  "facts": [
+    {
+      "id": "24ca38b6-8b19-450c-96df-6e8784d08e98",
+      "fact_key": "boundary.confidentiality",
+      "category": "boundary",
+      "statement_en": "Names are withheld where confidentiality requires it. Funding by a company never authorizes sharing what is said in sessions.",
+      "statement_he": "שמות לא נחשפים כשהסודיות מחייבת. מימון על ידי חברה אף פעם לא מתיר שיתוף של מה שנאמר במפגשים.",
+      "source_url": "https://itayfoyerstein.com",
+      "confidentiality": "public",
+      "status": "draft",
+      "approved_by": null,
+      "approved_at": null,
+      "valid_until": null,
+      "usage_scope": [
+        "public_posts"
+      ]
+    },
+    {
+      "id": "f6a14e65-1f07-4669-a365-4649e034632e",
+      "fact_key": "credential.hours",
+      "category": "credential",
+      "statement_en": "1000+ coaching hours.",
+      "statement_he": "1000+ שעות אימון.",
+      "source_url": "https://itayfoyerstein.com",
+      "confidentiality": "public",
+      "status": "draft",
+      "approved_by": null,
+      "approved_at": null,
+      "valid_until": null,
+      "usage_scope": [
+        "public_posts"
+      ]
+    },
+    {
+      "id": "f75c89af-465c-4a15-907b-5aa423fbf9b1",
+      "fact_key": "credential.years",
+      "category": "credential",
+      "statement_en": "25+ years in technology and delivery.",
+      "statement_he": "25+ שנים בטכנולוגיה ובדליברי.",
+      "source_url": "https://itayfoyerstein.com",
+      "confidentiality": "public",
+      "status": "draft",
+      "approved_by": null,
+      "approved_at": null,
+      "valid_until": null,
+      "usage_scope": [
+        "public_posts"
+      ]
+    },
+    {
+      "id": "9564cd29-33ca-4c51-89a3-9ea34a1e7021",
+      "fact_key": "method.loop",
+      "category": "method",
+      "statement_en": "See the real case and the system around it; challenge the first explanation; move one real leadership behavior; read how people respond; adjust what comes next.",
+      "statement_he": "לראות את המקרה האמיתי ואת המערכת סביבו; לאתגר את ההסבר הראשון; להזיז התנהגות מנהיגותית אחת; לקרוא את התגובות; להתאים את הצעד הבא.",
+      "source_url": "https://itayfoyerstein.com",
+      "confidentiality": "public",
+      "status": "draft",
+      "approved_by": null,
+      "approved_at": null,
+      "valid_until": null,
+      "usage_scope": [
+        "public_posts"
+      ]
+    },
+    {
+      "id": "27ba6aaf-dd5e-47a4-913e-573fd2746ad8",
+      "fact_key": "offering.first_read",
+      "category": "offering",
+      "statement_en": "Bring one current case; you get a written first read before anyone asks for a call.",
+      "statement_he": "הביאו מקרה נוכחי אחד; תקבלו קריאה ראשונה בכתב לפני שמישהו מבקש שיחה.",
+      "source_url": "https://itayfoyerstein.com",
+      "confidentiality": "public",
+      "status": "draft",
+      "approved_by": null,
+      "approved_at": null,
+      "valid_until": null,
+      "usage_scope": [
+        "public_posts"
+      ]
+    },
+    {
+      "id": "992068c0-2802-4d10-9447-e4c158b0dffc",
+      "fact_key": "offering.structure",
+      "category": "offering",
+      "statement_en": "12 weeks, 6 private 1:1 sessions, 1 problem worth changing.",
+      "statement_he": "12 שבועות, 6 מפגשים אישיים 1:1, בעיה אחת ששווה לשנות.",
+      "source_url": "https://itayfoyerstein.com",
+      "confidentiality": "public",
+      "status": "draft",
+      "approved_by": null,
+      "approved_at": null,
+      "valid_until": null,
+      "usage_scope": [
+        "public_posts"
+      ]
+    }
+  ]
+}
