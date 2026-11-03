@@ -1,5 +1,5 @@
 {
-  "id": "05305ef1-7599-43e3-92c3-3efad304bd41",
+  "id": "df2095b3-409c-4c55-a2eb-71de259d73bc",
   "version": 1,
   "is_active": true,
   "brand_name": "The Push / Itay Foyerstein",
@@ -67,6 +67,6 @@
   "needs_review": true,
   "approved_by": null,
   "approved_at": null,
-  "created_at": "2026-11-03T14:44:21.708Z",
-  "updated_at": "2026-11-03T14:44:21.708Z"
+  "created_at": "2026-11-03T15:29:08.981Z",
+  "updated_at": "2026-11-03T15:29:08.981Z"
 }

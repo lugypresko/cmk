@@ -18,6 +18,7 @@ fs.mkdirSync(DB_DIR, { recursive: true });
 
 const db = new PGlite(DB_DIR, { extensions: { pgcrypto } });
 const results = [];
+await db.exec("SET cmk.actor_type='agent'; SET cmk.actor_name='migration-runner'; SET cmk.run_id='local-apply';");
 const step = async (label, file, { optional = false } = {}) => {
   const p = path.join(ROOT, file);
   try {
@@ -51,6 +52,13 @@ for (const [label, file, marker] of [
 ]) {
   if (exists && (marker ? await migApplied(marker) : true) && label !== '005') { console.log(`SKIP  ${label.padEnd(8)} ${file} (already applied)`); continue; }
   await step(label, file);
+}
+// New numbered migrations are tracked individually, never inferred from unrelated tables.
+await db.exec('CREATE TABLE IF NOT EXISTS cmk.runtime_migrations (filename text PRIMARY KEY, applied_at timestamptz DEFAULT now())');
+for (const file of fs.readdirSync(path.join(ROOT, 'migrations')).filter(f => /^00[6-9]_.*\.sql$/.test(f)).sort()) {
+  if ((await db.query('SELECT 1 FROM cmk.runtime_migrations WHERE filename=$1',[file])).rows.length) continue;
+  await step(file.slice(0,3), 'migrations/' + file);
+  await db.query('INSERT INTO cmk.runtime_migrations(filename) VALUES ($1)',[file]);
 }
 // Tests run inside a transaction and are rolled back so the durable DB stays clean.
 for (const [label, file] of [['test23', 'migrations/test_002_003.sql'], ['test5', 'migrations/test_005.sql']]) {

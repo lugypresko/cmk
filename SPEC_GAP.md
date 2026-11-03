@@ -33,7 +33,7 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 ## C. Guardian
 | SPEC item | Status | Where | v0 choice / note |
 |---|---|---|---|
-| Brand + ICP scoring | 🟡 | guardian_rules.md, checklist v1 | Rules done. **The scorer isn't built**, and run 001 was self-estimated. |
+| Brand + ICP scoring | 🟡 | guardian_rules.md, checklist v1 | Rules done. SpecGate and FactGate are built; EditorialGuardian is heuristic-stub-v0, uncalibrated. |
 | Threshold 0.85 | 🟡 | guardian_thresholds table + .md | **v0 keeps 75/70 (active).** `spec_v1` 85/85 is seeded inactive. 0–100 is canonical and 0–1 floats are generated. Applying 0.85 to ICP is an assumption. |
 | Blockers (facts, pricing, clients, confidentiality, language) | ✅ | guardian_rules §1 | |
 | Checks for the 9 new formats | ❌ | guardian_rules §11 | Ids proposed (F-V1, F-P1, F-I1, B-13, B-14). Not written. |
@@ -67,7 +67,7 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 
 ## G. Remaining true gaps (by priority)
 1. **Paste the verbatim SPEC v1.0 into SPEC.md** and re-review the `?` rows.
-2. **Guardian scorer code** (the v0 formats), calibrated on past posts. Nothing scales safely until this exists.
+2. **Guardian calibration** (the v0 formats) on past posts. Code gates exist; calibration on 20+ human-labelled posts remains open.
 3. **Itay approvals:** the 6 site facts, the HE seeds, the run 001 carousel and Core.
 4. **Import 20–50 past posts** and mark exemplars.
 5. **Agent runtime** (Orchestrator + agents as code), with `SET LOCAL cmk.*` and prompts in `prompt_versions`.
@@ -105,7 +105,7 @@ Itay decided D1–D5 (`ARCHITECTURE_CRITIQUE_RESPONSE.md` → *Decisions locked*
 
 | # | Decision | New status | Note |
 |---|---|---|---|
-| H-1 | D1 yes | ✅ decided · 🟡 in progress | agents.md accepted, contracts GuardianReport v2. Scorer code still not built (see G.2) |
+| H-1 | D1 yes | ✅ decided · 🟡 in progress | agents.md accepted, contracts GuardianReport v2. Code gates built; editorial heuristic stub remains uncalibrated (see G.2) |
 | H-2 | D2 no freeze | ✅ decided · 🟡 in progress | **Audit-only** (005 §1: hash at approval, `edited_after_approval`, audit row). No approvals table, no revoke. Accepted risk: approval can survive an edit |
 | H-3 | D3 = A | ✅ decided · 🟡 in progress | 005 §3: `unknown` → escalate, no new attempt, human-only resolve |
 | H-4 | D4 = B | ✅ decided · 🟡 in progress | Stays in Postgres. 005 §6 adds fact validity + `memory_kind`/replay columns |
@@ -121,3 +121,6 @@ Itay decided D1–D5 (`ARCHITECTURE_CRITIQUE_RESPONSE.md` → *Decisions locked*
 | H-14 | n/a | 🟡 in progress | 005 §8 adds `proposed` to the journal status CHECK |
 
 **Deferred:** none of the H-rows. Applying 005 to the real DB, and the code for SpecGate/FactGate/RenderQA/Orchestrator, wait on G.2/G.5 (agent runtime).
+
+## Phase A execution (2026-11-03)
+Memory applies locally with SQL smoke tests; checklist v2 B-02 is seeded in Postgres (006) and exported to fixtures. Human approvals remain open. See docs/OPERATIONS.md. Hosted DB untouched.
