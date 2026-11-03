@@ -130,3 +130,9 @@ RenderQA + package + measurement/past-content import code and tests exist in run
 PDF-only RenderQA fails closed on missing extraction/RTL/font evidence. Full MediaProducer rendering
 and human visual approval remain open. 20–50 real posts and success baselines still require Itay.
 Measurement identity is enforced by migration 007; missing ICP conversations remain NULL.
+
+## Phase C execution (2026-11-03)
+Work-item runtime, leases, atomic draft creation and append-only work_events now exist. Research/Core/
+Repurposer wrappers validate draft output; Guardian reads live DB context; editorial is explicitly
+heuristic-stub-v0. Prompt proposals are draft/inactive in Postgres (008). ErrorWatcher proposes and writes
+a clearly labelled baseline replay stub. Human approval and prompt activation remain open.

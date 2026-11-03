@@ -6,10 +6,11 @@ export function python(op,args) {
 }
 export async function qa(db,id,file,alt_text) {
  return tx(db,async t=>{
-  const piece=(await t.query('SELECT * FROM content_library WHERE id=$1',[id])).rows[0];
+  const piece=(await t.query('SELECT *,content_hash(content_library) AS current_content_hash FROM content_library WHERE id=$1',[id])).rows[0];
   if(!piece)throw Error('unknown piece');
   const spec=(await t.query('SELECT * FROM format_specs WHERE id=$1',[piece.format_spec_id])).rows[0];
   const report=python('render_qa',{path:file,piece,alt_text,spec});
+  report.content_hash=piece.current_content_hash; report.alt_text=alt_text;
   if(!report.sha256)throw Error('File cannot be read');
   const fs=await import('node:fs');
   await t.query(`INSERT INTO media_assets(content_id,content_revision,kind,storage_uri,sha256,bytes,source,qa_status,qa_report,qa_checked_at,page_count)
@@ -22,7 +23,7 @@ export async function qa(db,id,file,alt_text) {
 }
 export async function buildPackage(db,id,out_root,actor=null) {
  return tx(db,async t=>{
- const piece=(await t.query('SELECT * FROM content_library WHERE id=$1',[id])).rows[0];
+ const piece=(await t.query('SELECT *,content_hash(content_library) AS current_content_hash FROM content_library WHERE id=$1',[id])).rows[0];
  const assets=(await t.query('SELECT * FROM media_assets WHERE content_id=$1 AND content_revision=$2',[id,piece.revision])).rows;
  if(actor && actor.type!=='human')throw Error('Human flag requires human actor');
  return python('package',{piece,out_root,assets,allow_edited_by:actor?.name||null});
@@ -34,7 +35,7 @@ export async function importMeasurement(db,id,file,window,captured,manual={},act
  if(Object.keys(manual).length && (!actor||actor.type!=='human'))throw Error('Human metrics require confirmer');
  for(const v of Object.values(manual))if(!Number.isInteger(v)||v<0)throw Error('Invalid manual metric');
  return tx(db,async t=>{
- const p=(await t.query('SELECT * FROM content_library WHERE id=$1',[id])).rows[0];
+ const p=(await t.query('SELECT *,content_hash(content_library) AS current_content_hash FROM content_library WHERE id=$1',[id])).rows[0];
  if(!p||p.external_url!==parsed.url)throw Error('Post URL does not match content mapping');
  const cols=Object.keys(parsed.metrics),vals=Object.values(parsed.metrics);
  await t.query(`INSERT INTO performance_logs(content_id,window_label,source,captured_at,icp_conversations,time_saved_minutes,confirmed_by,${cols.join(',')})

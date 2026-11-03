@@ -37,7 +37,9 @@ def render_qa(path, piece, alt_text, spec=None):
             spec = spec or {}
             checks['dimensions'] = all(p.rect.width > 0 and p.rect.height > 0 and
                 (not spec.get('aspect_ratio') or abs(p.rect.width/p.rect.height - float(spec['aspect_ratio'])) < .02) for p in doc)
-            checks['fonts_embedded'] = all(doc.extract_font(f[0])[3] for p in doc for f in p.get_fonts()) and any(p.get_fonts() for p in doc)
+            used={span['font'] for p in doc for block in p.get_text('dict')['blocks'] for line in block.get('lines',[]) for span in line['spans']}
+            font_records=[f for p in doc for f in p.get_fonts() if f[3].split('+')[-1] in used]
+            checks['fonts_embedded'] = bool(font_records) and all(doc.extract_font(f[0])[3] for f in font_records)
             if piece.get('language') == 'he':
                 # Visual PDF Hebrew runs must read right-to-left, or expose logical RTL direction.
                 runs=[]
@@ -70,13 +72,15 @@ def package(piece, out_root, assets=(), allow_edited_by=None):
     for a in assets:
         if a['qa_status']!='pass' or a['content_revision']!=piece['revision'] or a['content_id']!=piece['id']:
             raise ValueError('Asset QA/revision mismatch')
+        if piece.get('current_content_hash') and a.get('qa_report',{}).get('content_hash')!=piece['current_content_hash']:
+            raise ValueError('Content changed since RenderQA')
         if digest(a['storage_uri'])!=a['sha256']:
             raise ValueError('Asset changed after QA')
     dest=Path(out_root)/piece['id']/('r'+str(piece['revision']))
     dest.mkdir(parents=True, exist_ok=True)
     manifest={'content_id':piece['id'], 'revision':piece['revision'], 'post_text':piece['body'],
               'first_comment':(piece.get('payload') or {}).get('first_comment',''),
-              'alt_text':[a for ref in piece.get('media_refs') or [] for a in [ref.get('alt_text','')]],
+              'alt_text': [alt for asset in assets for alt in (asset.get('qa_report') or {}).get('alt_text',[])],
               'carousel_pdf_path':None, 'files':{}, 'edited_acknowledged_by':allow_edited_by}
     (dest/'post.txt').write_text(piece['body'],encoding='utf-8')
     (dest/'first_comment.txt').write_text(manifest['first_comment'],encoding='utf-8')

@@ -1,6 +1,6 @@
 {
   "_note": "Exported from local PGlite cmk.approved_facts. Approval state is taken from the DB at export time. FactGate only accepts status=approved AND confidentiality=public AND unexpired. No Stripe/proof facts exist.",
-  "exported_at": "2026-11-03T15:29:25.192Z",
+  "exported_at": "2026-11-03T15:33:25.121Z",
   "facts": [
     {
       "id": "879c175b-c7b9-4e10-932c-d67688c45576",

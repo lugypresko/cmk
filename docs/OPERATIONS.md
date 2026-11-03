@@ -51,3 +51,27 @@ Measurement requires explicit content UUID, capture timestamp and window; the wo
 must match that content's external URL. Only known aggregate metrics are imported, never viewer
 identities. ICP conversations and time saved stay NULL unless explicit human manual values are supplied.
 Re-import replaces that window's platform snapshot, preserving previously confirmed human metrics.
+
+## Work items and prompts
+
+`runtime/orchestrator.mjs` persists leases, state, step outputs and every transition in `work_events`.
+`work_transitions` remains the allowed-transition policy. `run` resumes committed steps after a crash;
+a live lease prevents duplicate workers. Exhausted work stops with a reason. Each derivative is independent.
+Fixture mode is explicit through `context.core`/`context.piece`; it uses supplied text only, without an LLM.
+Production judgment providers require an active approved DB prompt. No API keys or LLM calls are built in.
+
+Draft prompts are seeded by 008. Itay reviews the body, then can approve/activate a specific UUID:
+
+```sql
+BEGIN;
+SET LOCAL cmk.actor_type='human'; SET LOCAL cmk.actor_name='Itay';
+SET LOCAL cmk.run_id='human-prompt-review';
+UPDATE cmk.prompt_versions SET status='approved',approved_by='Itay',approved_at=now(),is_active=true
+ WHERE id='<prompt-uuid>' AND status='draft';
+COMMIT;
+```
+
+Research inserts draft insights. Core/Repurposer validate JSON against contracts.md before draft insertion.
+Core and insight approval are separate human gates. `resumeHuman` only resumes after checking the DB;
+it never approves the subject itself. ErrorWatcher records classification, proposal, reason, scope and a
+baseline Guardian replay. The replay is explicitly a stub, never evidence that a proposed rule was tested.
