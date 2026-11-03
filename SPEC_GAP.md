@@ -124,3 +124,9 @@ Itay decided D1–D5 (`ARCHITECTURE_CRITIQUE_RESPONSE.md` → *Decisions locked*
 
 ## Phase A execution (2026-11-03)
 Memory applies locally with SQL smoke tests; checklist v2 B-02 is seeded in Postgres (006) and exported to fixtures. Human approvals remain open. See docs/OPERATIONS.md. Hosted DB untouched.
+
+## Phase B execution (2026-11-03)
+RenderQA + package + measurement/past-content import code and tests exist in runtime/.
+PDF-only RenderQA fails closed on missing extraction/RTL/font evidence. Full MediaProducer rendering
+and human visual approval remain open. 20–50 real posts and success baselines still require Itay.
+Measurement identity is enforced by migration 007; missing ICP conversations remain NULL.

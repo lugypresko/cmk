@@ -35,3 +35,19 @@ COMMIT;
 ```
 
 For Core use `cmk.core_assets` with the same status/report guard. No agent executes these approvals.
+
+## Production files and imports
+
+Install Python dependencies from `requirements.txt`. Drop historical `.md` or `.json` files in
+`imports/past_content/`. JSON accepts a row or array of `{body,language,url?,external_post_id?}`.
+Markdown requires explicit language at import. Imported rows are drafts, with both exemplar flags false.
+
+RenderQA accepts PDF files. Unsupported static formats fail closed and require a future extractor.
+It verifies embedded fonts, pages, dimensions, per-page text and Hebrew RTL evidence. It does not
+replace Itay's visual preview. Alt descriptions are required per page. PackageBuilder copies only
+assets whose current hash equals their QA hash; caption text is preserved verbatim.
+
+Measurement requires explicit content UUID, capture timestamp and window; the workbook's Post URL
+must match that content's external URL. Only known aggregate metrics are imported, never viewer
+identities. ICP conversations and time saved stay NULL unless explicit human manual values are supplied.
+Re-import replaces that window's platform snapshot, preserving previously confirmed human metrics.
