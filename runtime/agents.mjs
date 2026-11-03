@@ -65,10 +65,10 @@ export async function repurpose(t,input,options) {
  await factRefs(t,'content_id',row);
  return row;
 }
-export async function guardian(t,table,id) {
+export async function guardian(t,table,id,{readOnly=false}={}) {
  if(!['core_assets','content_library'].includes(table))throw Error('invalid subject');
  const piece=(await t.query(`SELECT *, ${table==='content_library'?'content_hash(content_library)':'NULL'} AS current_content_hash FROM ${table} WHERE id=$1`,[id])).rows[0];
- if(!piece||!['draft','in_review','needs_changes'].includes(piece.status))throw Error('Guardian only updates reviewable revisions');
+ if(!piece||(!readOnly&&!['draft','in_review','needs_changes'].includes(piece.status)))throw Error('Guardian only updates reviewable revisions');
  piece.fact_ids=(await t.query(`SELECT approved_fact_id FROM content_fact_refs WHERE ${table==='core_assets'?'core_asset_id':'content_id'}=$1`,[id])).rows.map(r=>r.approved_fact_id);
  let media_qa=null;
  if(piece.format==='carousel') {
@@ -76,7 +76,9 @@ export async function guardian(t,table,id) {
  const {digestFile}=await import('./package_check.mjs');
  if(assets.length&&assets.every(a=>a.qa_status==='pass'&&a.qa_report?.content_hash===piece.current_content_hash&&digestFile(a.storage_uri)===a.sha256))media_qa='pass';
  }
+ if(readOnly){piece.status='draft';piece.approved_by=null;piece.approved_at=null;}
  const report=bridge('guardian',{piece,ctx:await context(t),facts:(await t.query('SELECT * FROM approved_facts')).rows,media_qa});
+ if(readOnly)return report;
  await t.query(`UPDATE ${table} SET guardian_report=$2,brand_score=$3,icp_relevance_score=$4,
  guardian_checked_at=now(),guardian_threshold_profile='v0',status=$5 WHERE id=$1`,
  [id,JSON.stringify(report),report.brand_score,report.icp_relevance_score,report.verdict==='pass'?'in_review':'needs_changes']);

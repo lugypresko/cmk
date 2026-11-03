@@ -39,3 +39,15 @@ class ProductionTests(unittest.TestCase):
   f=self.root/'p.json';f.write_text(json.dumps({'body':'hello','language':'en','is_exemplar':True}))
   with self.assertRaises(ValueError):past_posts(f)
   f.write_text(json.dumps({'body':'hello','language':'en'}));self.assertEqual(past_posts(f)[0]['notes'],'Imported draft; human review pending')
+
+ def test_embedded_pdf_pass_and_he_rtl(self):
+  from reportlab.pdfbase import pdfmetrics
+  from reportlab.pdfbase.ttfonts import TTFont
+  pdfmetrics.registerFont(TTFont('Embedded','/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
+  c=canvas.Canvas(str(self.pdf));c.setFont('Embedded',20);c.drawString(50,750,'Team decisions');c.showPage();c.save()
+  self.assertEqual(render_qa(self.pdf,self.piece,['A'])['status'],'pass')
+  self.piece.update(language='he',body='החלטות בצוות',slides=[{'headline':'החלטות בצוות'}])
+  c=canvas.Canvas(str(self.pdf));c.setFont('Embedded',20);c.drawString(50,750,'החלטות בצוות'[::-1]);c.showPage();c.save()
+  self.assertEqual(render_qa(self.pdf,self.piece,['תיאור'])['status'],'pass')
+  c=canvas.Canvas(str(self.pdf));c.setFont('Embedded',20);c.drawString(50,750,'החלטות בצוות');c.showPage();c.save()
+  self.assertFalse(render_qa(self.pdf,self.piece,['תיאור'])['checks']['rtl'])

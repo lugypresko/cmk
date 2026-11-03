@@ -2,6 +2,7 @@ import {tx} from './db.mjs';
 import {research,createCore,repurpose,guardian} from './agents.mjs';
 import {qa,buildPackage} from './production.mjs';
 export async function enqueue(db,kind,context,subject=null,parent=null) {
+ if(!['core','derivative'].includes(kind))throw Error('kind must be core or derivative');
  return tx(db,async t=>(await t.query(`INSERT INTO work_items(kind,step,owner,context,subject_table,subject_id,parent_work_item_id,run_id)
  VALUES($1,$2,'Orchestrator',$3,$4,$5,$6,'phase-0-1') RETURNING *`,
  [kind,kind==='core'?'research':'repurpose',JSON.stringify(context),subject?'content_library':null,subject,parent])).rows[0]);
@@ -31,8 +32,12 @@ export async function tick(db,id,runner='local-runner') {
  const r=await createCore(t,{insight_id:ctx.insight_id},{fixture:ctx.core});table='core_assets';subject=r.id;step='spec_gate';
  }else if(step==='repurpose') {
  const r=await repurpose(t,ctx,{fixture:ctx.piece});table='content_library';subject=r.id;step='spec_gate';
- }else if(['spec_gate','fact_gate','editorial_review'].includes(step)) {
- const report=await guardian(t,table,subject);ctx={...ctx,guardian:report};
+ }else if(step==='spec_gate') {
+ const report=await guardian(t,table,subject);ctx={...ctx,guardian:report};step='fact_gate';
+ }else if(step==='fact_gate') {
+ step='editorial_review';
+ }else if(step==='editorial_review') {
+ const report=ctx.guardian;
  if(report.verdict==='pass'){state='awaiting_human';blocked=table==='core_assets'?'human_gate:approve_core':'human_gate:approve_piece';step='human_approval';}
  else if(table==='content_library'&&report.findings.some(f=>f.check_id==='R-01')&&ctx.render_file){step='render_qa';}
  else {state='needs_changes';blocked='guardian:'+report.verdict;}
@@ -44,6 +49,10 @@ export async function tick(db,id,runner='local-runner') {
  // Files are idempotent; avoid nested DB transactions.
  state='awaiting_human';blocked='human_gate:package_preview';step='schedule';
  }else if(step==='schedule') {
+ const {proposeSlots}=await import('./scheduler.mjs');
+ if(!ctx.start_date)throw Error('schedule start_date required in work context');
+ const proposal=await proposeSlots(t,{start_date:ctx.start_date,package_dir:ctx.package_dir},true);
+ ctx={...ctx,schedule_plan_id:proposal.plan.id};
  state='awaiting_human';blocked='human_gate:confirm_slot';step='publish';
  }else if(step==='publish') {
  state='awaiting_human';blocked='human_gate:manual_publish_record';step='verify_publish';
@@ -68,6 +77,7 @@ export async function run(db,id,runner) {
  for(let n=0;n<32;n++) {
  const w=(await db.query('SELECT * FROM cmk.work_items WHERE id=$1',[id])).rows[0];
  if(!w||['awaiting_human','needs_changes','done','failed','stopped'].includes(w.state))return w;
+ if(w.state==='running'&&w.lease_until&&new Date(w.lease_until)>new Date())return {idle:true};
  if(w.step==='render_qa') {
  const r=await qa(db,w.subject_id,w.context.render_file,w.context.alt_text||[]);
  if(r.status!=='pass'){
@@ -76,6 +86,7 @@ export async function run(db,id,runner) {
  }
  }
  if(w.step==='package')await buildPackage(db,w.subject_id,w.context.package_dir);
+
  const r=await tick(db,id,runner);if(r.idle)return r;
  }throw Error('step budget exhausted');
 }

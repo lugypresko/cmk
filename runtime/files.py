@@ -52,7 +52,7 @@ def render_qa(path, piece, alt_text, spec=None):
                                     text=''.join(c['c'] for c in chars)
                                     expected_chars=''.join(re.findall('[א-ת]', '\n'.join(expected)))
                                     direction=chars[0]['origin'][0] > chars[-1]['origin'][0]
-                                    runs.append(direction or text[::-1] in expected_chars)
+                                    runs.append((direction and text in expected_chars) or (not direction and text[::-1] in expected_chars))
                 checks['rtl'] = bool(runs) and all(runs)
             report['page_count'] = len(doc)
     except Exception as e:
@@ -78,7 +78,7 @@ def package(piece, out_root, assets=(), allow_edited_by=None):
             raise ValueError('Asset changed after QA')
     dest=Path(out_root)/piece['id']/('r'+str(piece['revision']))
     dest.mkdir(parents=True, exist_ok=True)
-    manifest={'content_id':piece['id'], 'revision':piece['revision'], 'post_text':piece['body'],
+    manifest={'content_id':piece['id'], 'revision':piece['revision'], 'content_hash':piece.get('current_content_hash'), 'post_text':piece['body'],
               'first_comment':(piece.get('payload') or {}).get('first_comment',''),
               'alt_text': [alt for asset in assets for alt in (asset.get('qa_report') or {}).get('alt_text',[])],
               'carousel_pdf_path':None, 'files':{}, 'edited_acknowledged_by':allow_edited_by}

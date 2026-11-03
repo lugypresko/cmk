@@ -75,3 +75,41 @@ Research inserts draft insights. Core/Repurposer validate JSON against contracts
 Core and insight approval are separate human gates. `resumeHuman` only resumes after checking the DB;
 it never approves the subject itself. ErrorWatcher records classification, proposal, reason, scope and a
 baseline Guardian replay. The replay is explicitly a stub, never evidence that a proposed rule was tested.
+
+## CLI examples
+
+```bash
+node scripts/cmk.mjs enqueue --kind core --input fixture-workflow.json
+node scripts/cmk.mjs run --id WORK_UUID
+node scripts/cmk.mjs status
+node scripts/cmk.mjs resume --id WORK_UUID --confirmer Itay
+node scripts/cmk.mjs qa --id CONTENT_UUID --file carousel.pdf --alt alt-text.json
+node scripts/cmk.mjs package --id CONTENT_UUID
+node scripts/cmk.mjs import-past --file imports/past_content/post.md --language he
+node scripts/cmk.mjs measure --id CONTENT_UUID --file analytics.xlsx --window 72h --captured-at 2026-11-03T12:00:00+02:00
+node scripts/cmk.mjs propose-slots --start 2026-11-04
+node scripts/cmk.mjs confirm-slot --id SLOT_UUID --confirmer Itay
+node scripts/cmk.mjs begin-manual --id CONTENT_UUID --account itay-profile --slot SLOT_UUID
+node scripts/cmk.mjs outcome --attempt ATTEMPT_UUID --outcome unknown
+node scripts/cmk.mjs posted-url --id INSTANCE_UUID --url https://www.linkedin.com/posts/POST --confirmer Itay
+```
+
+The CLI never approves content/facts/Core. `--confirmer` is a local operator declaration, not authentication.
+Run it only in a trusted environment; production still needs authenticated DB roles. A `posted-url` command
+records Itay's explicit report that the post is live. It performs no network publication or verification.
+Unknown outcomes require Itay to check LinkedIn and record the URL or resolve the instance explicitly in SQL.
+There is no automatic retry. A known failed attempt can be started again only by an explicit `begin-manual`.
+
+The v0 Scheduler creates a draft plan; slot enum has no `draft`, so unconfirmed proposals use `filled`.
+It leaves missing candidates `open`. Daily cap is always 1 LinkedIn post, across plans, in Asia/Jerusalem.
+No Calendar integration is created. No exact recycling or disabled format is selected.
+
+Run `scripts/test_all.sh --fresh` for a clean local validation, or omit `--fresh` to retain local data.
+The journal sync restores Markdown entries after a reset without modifying old entries. Historical
+noncanonical journal IDs are mapped to their canonical filename IDs in the DB mirror only.
+
+A manual metric example adds `--manual --icp_conversations 1 --confirmer Itay` to the measurement command.
+No baseline or ICP count is inferred from engagement. Time saved has the same explicit manual requirement.
+
+Read-only inspection: `node scripts/q.mjs "SELECT * FROM cmk.work_events ORDER BY id DESC LIMIT 20"`.
+`q.mjs` runs a read-only transaction. Use a deliberate operator SQL transaction for human approvals.

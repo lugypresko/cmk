@@ -46,8 +46,8 @@ Verdict order:
 4. Otherwise, the thresholds decide.
 
 ## Deviations and known gaps
-- **R-01** blocks every carousel until `--media-qa pass`. Nothing has been rendered yet.
-- **B-02**: the checklist v1 regex has a bare `NIS` that matched inside "fi**nis**hed" under re.I. The gate word-bounds it. Proposed checklist v2 fix: use `\bNIS\b`.
+- **R-01** blocks until DB RenderQA passes for the current revision/content/file hash. File-mode tests may use `--media-qa pass`. A run001 placeholder PDF was QA-tested; real carousel approval remains open.
+- **B-02**: checklist v2 uses `\bNIS\b`, seeded in Postgres by 006 and exported with `export_fixtures.mjs`. The gate reads that exported DB checklist.
 - **E-DUP** is a stub heuristic: two clauses with the same 5-word tail (questions skipped).
 - **B-03/04/05/C-08** use regex/heuristics only. The LLM pass in production should cover tone and invented scenes.
 - Hebrew number words ("עשרות", "מאות") are detected weakly. Prefer digits plus a fact_id.

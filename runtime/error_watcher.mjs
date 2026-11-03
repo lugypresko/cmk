@@ -6,10 +6,8 @@ export async function proposeReplay(db,{kind,reason,proposal,scope={},fixtures=[
  return tx(db,async t=>{
  const results=[];
  for(const f of fixtures){
- // Replay uses DB context but rolls back all Guardian content changes in a savepoint.
- await t.exec('SAVEPOINT replay');
- try{const r=await guardian(t,f.table,f.id);results.push({id:f.id,verdict:r.verdict,expected:f.expected??null,match:f.expected?r.verdict===f.expected:null});}
- finally{await t.exec('ROLLBACK TO SAVEPOINT replay');await t.exec('RELEASE SAVEPOINT replay');}
+ const r=await guardian(t,f.table,f.id,{readOnly:true});
+ results.push({id:f.id,verdict:r.verdict,expected:f.expected??null,match:f.expected?r.verdict===f.expected:null});
  }
  const replay={kind:'guardian-fixture-replay-stub-v0',candidate_applied:false,results,
  note:'Baseline Guardian only. Candidate rule execution is not implemented; promotion requires human review.',passed:false};
