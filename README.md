@@ -87,3 +87,12 @@ node scripts/q.mjs "SELECT id,state,step,blocked_on FROM cmk.work_items"
 Tests use a separate in-memory database and synthetic human approvals only. They never approve business data.
 The demo stops at insight approval. Core, carousel, facts, HE seeds, exemplar labels, prompt activation and
 threshold changes remain human decisions. Hosted migrations and production LLM integration remain pending.
+
+## First generated artifact via an LLM
+
+[docs/LLM_RUNTIME.md](docs/LLM_RUNTIME.md) documents the existing prompt keys, provider adapter,
+full memory/insight/Core context, human approval stops and local budget/audit ledger (migration 014).
+`run --id UUID` is a dry preflight by default. Live transport needs both the explicit paid environment
+switch and `--allow-paid`; `run --offline` executes deterministic/fixture stages without model calls.
+No provider, model, prices or payment access is preselected. All real prompts/facts remain unapproved.
+A mocked end-to-end test reaches a packaged HE LinkedIn text post, stopping for human review.

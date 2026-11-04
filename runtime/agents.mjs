@@ -13,12 +13,43 @@ export async function context(t) {
  icp:(await rows('SELECT * FROM icp_profiles WHERE is_active ORDER BY priority LIMIT 1'))[0],
  thresholds:(await rows('SELECT * FROM guardian_thresholds WHERE is_active'))[0]};
 }
-async function judgment(t,key,input,{provider,fixture}={}) {
- if(fixture) return structuredClone(fixture); // Fixture mode is explicit, never a production prompt substitute.
- const prompt=(await t.query("SELECT * FROM prompt_versions WHERE prompt_key=$1 AND is_active AND status='approved'",[key])).rows[0];
- if(!prompt||!provider)throw Error('human_gate:activate_prompt_or_supply_provider');
- return provider({prompt,input});
+export const promptKeys={research:'research.v0',create_core:'core_creator.v0',repurpose:'repurposer.v0'};
+const contracts={
+ 'research.v0':{required:['title','confidentiality'],properties:{title:'string',insight_he:'string|null',insight_en:'string|null',confidentiality:'public|anonymized',status:'draft'},note:'At least one insight language is required. No approvals.'},
+ 'core_creator.v0':{required:['title','primary_language'],properties:{title:'string (max 200)',primary_language:'he|en',body_he:'string|null',body_en:'string|null',thesis_he:'string|null (max 280)',thesis_en:'string|null (max 280)',cta_he:'string|null',cta_en:'string|null',key_points:'array of {he?: string, en?: string}, max 7',fact_ids:'array of allowed fact UUIDs',status:'draft'},note:'Include a body in the primary language; no IDs or approval fields. Only sourced factual claims.'},
+ 'repurposer.v0':{required:['body'],properties:{body:'string',hook:'string|null',cta:'string|null',hashtags:'array of hashtags, max 5',slides:'carousel only: array of {n: integer,headline: string,text?: string}',fact_ids:'array of allowed fact UUIDs',status:'draft'},note:'Use requested format and language. IDs and approval fields are assigned by the runtime.'}
+};
+export async function prepareJudgment(t,key,input) {
+ if(!contracts[key])throw Error('unsupported generation step');
+ const prompt=(await t.query("SELECT id,prompt_key,version,body,params FROM prompt_versions WHERE prompt_key=$1 AND is_active AND status='approved'",[key])).rows[0];
+ if(!prompt)throw Error('human_gate:activate_prompt:'+key);
+ const ctx=await context(t);
+ const facts=(await t.query("SELECT id,fact_key,statement_he,statement_en,source_url,source_note FROM usable_facts_v WHERE 'public_posts'=ANY(usage_scope) ORDER BY fact_key")).rows;
+ let source;
+ if(key==='research.v0') {
+  if(!input.idea?.trim()&&!input.source_notes?.trim())throw Error('idea_or_source_notes_required');
+  source={idea:input.idea||null,source_notes:input.source_notes||null,goal:input.goal||null,language:input.language||'he'};
+ }else if(key==='core_creator.v0') {
+  const insight=(await t.query("SELECT id,title,insight_he,insight_en,confidentiality FROM core_insights WHERE id=$1 AND status='approved' AND confidentiality<>'private'",[input.insight_id])).rows[0];
+  if(!insight)throw Error('human_gate:approve_insight');
+  source={insight,language:input.language||'he',goal:input.goal||null};
+ }else {
+  const core=(await t.query("SELECT id,title,body_he,body_en,thesis_he,thesis_en,key_points,cta_he,cta_en,primary_language FROM core_assets WHERE id=$1 AND status='approved'",[input.core_id])).rows[0];
+  if(!core)throw Error('human_gate:approve_core');
+  core.fact_ids=(await t.query('SELECT approved_fact_id FROM content_fact_refs WHERE core_asset_id=$1 ORDER BY approved_fact_id',[core.id])).rows.map(r=>r.approved_fact_id);
+  if(!['he','en'].includes(input.language)||!['text_post','carousel'].includes(input.format))throw Error('unsupported v0 derivative');
+  const spec=ctx.format_specs.find(s=>s.format===input.format&&s.language===input.language&&s.channel==='linkedin');
+  if(!spec||spec.is_stub)throw Error('active_format_spec_required');
+  source={core,format:input.format,language:input.language,format_spec:spec};
+ }
+ return {prompt,input:source,memory:{brand_voice:ctx.brand_voice,icp:ctx.icp,approved_facts:facts},output_contract:contracts[key]};
 }
+async function judgment(t,key,input,{provider,fixture}={}) {
+ if(fixture) return structuredClone(fixture); // Explicit existing test/fixture mode remains offline.
+ if(!provider)throw Error('human_gate:llm_provider_required');
+ return provider(await prepareJudgment(t,key,input));
+}
+
 async function insertDraft(t,table,row,cols) {
  const selected=cols.filter(k=>row[k]!==undefined);
  const vals=selected.map(k=>['key_points','slides','payload','media_refs'].includes(k)&&row[k]!==null?JSON.stringify(row[k]):row[k]);
@@ -49,7 +80,10 @@ export async function createCore(t,input,options) {
  return row;
 }
 async function factRefs(t,col,row) {
- for(const fid of row.fact_ids||[])await t.query(`INSERT INTO content_fact_refs(${col},approved_fact_id) VALUES($1,$2)`,[row.id,fid]);
+ for(const fid of row.fact_ids||[]) {
+ if(!(await t.query("SELECT 1 FROM usable_facts_v WHERE id=$1 AND 'public_posts'=ANY(usage_scope)",[fid])).rows.length)throw Error('human_gate:approve_used_fact:'+fid);
+ await t.query(`INSERT INTO content_fact_refs(${col},approved_fact_id) VALUES($1,$2)`,[row.id,fid]);
+ }
 }
 export async function repurpose(t,input,options) {
  const core=(await t.query('SELECT * FROM core_assets WHERE id=$1',[input.core_id])).rows[0];
