@@ -11,10 +11,16 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, features
 
+from .fonts import COMMON_HEBREW_FONTS, resolve_font, require_glyphs
+
 W, H = 1080, 1350
 MARGIN = 96            # safe area
 BAND = 40              # outer band must stay empty (cutoff heuristic)
-FONT = "/usr/share/fonts/truetype/sand-box/google/Heebo/Heebo-VariableFont_wght.ttf"
+FONT = resolve_font(
+    "CMK_CAROUSEL_FONT",
+    "/usr/share/fonts/truetype/sand-box/google/Heebo/Heebo-VariableFont_wght.ttf",  # locked template font
+    *COMMON_HEBREW_FONTS,
+)
 PAPER, INK, LIME, SOFT = (244, 240, 230), (42, 40, 34), (216, 240, 0), (110, 106, 91)
 TEMPLATE_ID = "cmk.carousel.he.paper-v0"
 FIXED_DATE = "D:20261104000000+02'00'"
@@ -49,6 +55,7 @@ def template_sha(scale: float) -> str:
 
 
 def layout(slide: dict, total: int, scale: float = 1.0) -> dict:
+    require_glyphs(FONT, slide["headline"] + "\n" + (slide.get("text") or "") + f" {slide['n']}/{total}")
     cover = slide["n"] == 1
     hs, ts = int((84 if cover else 68) * scale), int(44 * scale)
     hf, tf = _font(hs, "Bold"), _font(ts, "Regular")

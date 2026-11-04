@@ -1,4 +1,4 @@
-// CMK Phase 0 — apply schema + migrations 002..012 to a persistent local PGlite DB,
+// CMK Phase 0 — apply schema + migrations 002..013 to a persistent local PGlite DB,
 // then run smoke tests. ON_ERROR_STOP semantics: first failure exits non-zero.
 // Usage: NODE_PATH=/tmp/pgl/node_modules node scripts/apply_all.mjs [--fresh]
 // Local PGlite only — this is NOT a hosted / production Postgres.
@@ -64,7 +64,7 @@ for (const file of fs.readdirSync(path.join(ROOT, 'migrations')).filter(f => /^\
   });
 }
 // Tests run inside a transaction and are rolled back so the durable DB stays clean.
-for (const [label, file] of [['test23', 'migrations/test_002_003.sql'], ['test5', 'migrations/test_005.sql'], ['test11', 'migrations/test_011.sql'], ['test12', 'migrations/test_012.sql']]) {
+for (const [label, file] of [['test23', 'migrations/test_002_003.sql'], ['test5', 'migrations/test_005.sql'], ['test11', 'migrations/test_011.sql'], ['test12', 'migrations/test_012.sql'], ['test13', 'migrations/test_013.sql']]) {
   const sql = fs.readFileSync(path.join(ROOT, file), 'utf8');
   try {
     await db.exec('BEGIN;'); await db.exec(sql); await db.exec('ROLLBACK;');

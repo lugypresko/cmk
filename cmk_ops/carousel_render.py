@@ -8,13 +8,19 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from .fonts import COMMON_HEBREW_FONTS, resolve_font, require_glyphs
+
 W, H = 1080, 1350  # LinkedIn portrait carousel
 MARGIN = 72
 TITLE_SIZE = 54
 BODY_SIZE = 36
 MAX_TITLE_CHARS = 50
 MAX_BODY_WORDS = 40
-FONT_REG = "/usr/share/fonts/truetype/sand-box/google/IBM Plex Sans Hebrew/IBMPlexSansHebrew-Regular.ttf"
+FONT_REG = resolve_font(
+    "CMK_RENDER_FONT",
+    "/usr/share/fonts/truetype/sand-box/google/IBM Plex Sans Hebrew/IBMPlexSansHebrew-Regular.ttf",  # locked template font
+    *COMMON_HEBREW_FONTS,
+)
 FONT_BOLD = FONT_REG  # bold variant may be absent; regular is fine for v0
 BG = (15, 23, 42)
 FG = (248, 250, 252)
@@ -63,6 +69,7 @@ def _wrap(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.FreeTypeFont, ma
 
 
 def render_slide(idx: int, title: str, body: str, out: Path) -> Path:
+    require_glyphs(FONT_REG, title + "\n" + body + f" {idx}/8")
     img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
     title_f = _font(TITLE_SIZE)

@@ -219,3 +219,20 @@ test('exact repeat reuses the approved revision and blocks when the hash or fact
  });
  await assert.rejects(confirmSlot(db,probe,human,packageDir),/Exact repeat blocked: hash_mismatch/);
 });
+
+test('013 negative tests detect removed authorization or draft CHECK protections',async()=>{
+ const sql=fs.readFileSync(root+'migrations/test_013.sql','utf8');
+ // Baseline test has no lasting writes.
+ await db.exec('BEGIN');
+ try {await db.exec(sql);} finally {await db.exec('ROLLBACK');}
+ await assert.rejects(db.transaction(async t=>{
+  await t.exec('ALTER TABLE cmk.prompt_versions DISABLE TRIGGER prompt_versions_human_boundary');
+  await t.exec(sql);
+ }),/check constraint/);
+ await assert.rejects(db.transaction(async t=>{
+  const rows=(await t.query("SELECT conname FROM pg_constraint WHERE conrelid='cmk.prompt_versions'::regclass AND contype='c' AND pg_get_constraintdef(oid) LIKE '%is_active%'")).rows;
+  assert.equal(rows.length,1);
+  await t.exec('ALTER TABLE cmk.prompt_versions DROP CONSTRAINT "'+rows[0].conname.replaceAll('"','""')+'"');
+  await t.exec(sql);
+ }),/human activation of a draft was not blocked by CHECK/);
+});

@@ -44,3 +44,22 @@ operational work. No new format, higher threshold, automatic publisher or volume
 Exact repeat is opt-in per piece (docs/OPERATIONS.md). It does not publish by itself.
 
 Run 001 local E2E slice (2026-11-04): `scripts/run_001_e2e_demo.sh` and `python -m cmk_ops` read and write `runs/001-human-gates/out/`. The checked-in HE Variant B package is `ready_for_human_approval`, not an approval and not a publish. Migration `012_e2e_chain_slice.sql` is the renumbered grill migration. Brief, Ingest, Research, and LeadOps remain the stub journal.
+
+# Phase 0.2 readiness (2026-11-04)
+
+Base verified as `9fc5e13ddc55397d4fd0136d50567aa7c8c3fdd8` on phase-0-1-runtime.
+The supplied readiness patch applied cleanly; focused hardening was authorized by Itay.
+
+- Installed requirements in an isolated Python environment (Pillow 12.3.0, fontTools 4.61.1).
+- `scripts/test_all.sh --fresh`: 18/18 schema/migration/SQL steps; Guardian 19, file/import 8,
+  font readiness 7, runtime 16. All 50 tests passed.
+- Missing fontTools now blocks verification. Coverage includes Hebrew final forms, Latin, digits,
+  typographic punctuation and the actual slide text. Unsupported glyphs block before drawing.
+- Both renderers resolved DejaVuSans on this machine without the locked template fonts. Each rendered
+  eight slides into temporary output, passed its existing QA, and all slides were visually inspected.
+  No generated media or changed package hashes were committed; technical verification is not approval.
+- test_013 separately verifies the agent boundary and the draft-state CHECK. Its assertions are outside
+  their exception handlers. An isolated mutation test disables each protection in turn and confirms the
+  smoke test fails; these schema mutations roll back and never touch the persistent DB.
+- research.v0 is seeded draft/inactive by migration 013. All four prompts remain draft and inactive;
+  all six site facts remain draft. No provider was connected and no real approval was granted.

@@ -38,8 +38,25 @@ For Core use `cmk.core_assets` with the same status/report guard. No agent execu
 
 ## Production files and imports
 
-Install Python dependencies from `requirements.txt`. Drop historical `.md` or `.json` files in
-`imports/past_content/`. JSON accepts a row or array of `{body,language,url?,external_post_id?}`.
+Install Python dependencies from `requirements.txt` (Pillow included since the readiness pass).
+
+### Fonts on a new machine
+
+The carousel renderers need a Hebrew-capable .ttf. Each one resolves its font in this order:
+its environment variable (`CMK_CAROUSEL_FONT` for `cmk_ops/carousel.py`, `CMK_RENDER_FONT` for
+`cmk_ops/carousel_render.py`), then the locked template font, then common system Hebrew fonts.
+Missing fontTools blocks rendering; candidates are never trusted without verification.
+Every candidate, including an explicit override, is checked for glyph coverage of the carousel
+character set (Hebrew incl. final forms, Latin, digits, basic punctuation) via fontTools: fonts
+that exist but lack glyphs, like the Debian NotoSansHebrew package which has no Latin or
+punctuation, are skipped with the reason recorded. A wrong override fails loudly instead of
+changing rendered bytes or dropping characters silently. With no variable and no known font, the
+error lists every path tried and why it was rejected. Changing the font changes the rendered
+bytes, so a package rendered under a different font needs a fresh RenderQA and a fresh approval.
+The baseline includes typographic punctuation (such as `—` and `״`). Both renderers also
+verify the actual slide text before drawing; unsupported characters fail with their Unicode codepoints.
+
+Drop historical `.md` or `.json` files in `imports/past_content/`. JSON accepts a row or array of `{body,language,url?,external_post_id?}`.
 Markdown requires explicit language at import. Imported rows are drafts, with both exemplar flags false.
 
 RenderQA accepts PDF files. Unsupported static formats fail closed and require a future extractor.
@@ -60,7 +77,7 @@ a live lease prevents duplicate workers. Exhausted work stops with a reason. Eac
 Fixture mode is explicit through `context.core`/`context.piece`; it uses supplied text only, without an LLM.
 Production judgment providers require an active approved DB prompt. No API keys or LLM calls are built in.
 
-Draft prompts are seeded by 008. Itay reviews the body, then can approve/activate a specific UUID:
+Draft prompts are seeded by 008, plus research.v0 by 013. Itay reviews the body, then can approve/activate a specific UUID:
 
 ```sql
 BEGIN;
