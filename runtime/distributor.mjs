@@ -1,19 +1,23 @@
-import {tx} from './db.mjs';
+import {tx,root} from './db.mjs';
+import path from 'node:path';
+import {packageValid} from './package_check.mjs';
 import {exactRepeatViolation} from './scheduler.mjs';
 function human(a){if(a?.type!=='human'||!a.name?.trim())throw Error('Explicit human confirmer required');}
-export async function beginManual(db,content_id,account_ref,slot=null) {
+export async function beginManual(db,content_id,account_ref,slot=null,package_dir=path.join(root,'packages')) {
+ if(!slot)throw Error('Human-confirmed slot required');
  if(!account_ref?.trim())throw Error('account_ref required');
  return tx(db,async t=>{
- const p=(await t.query('SELECT *,content_hash(content_library) AS hash FROM content_library WHERE id=$1 FOR UPDATE',[content_id])).rows[0];
+ const p=(await t.query('SELECT *,content_hash(content_library) AS current_content_hash FROM content_library WHERE id=$1 FOR UPDATE',[content_id])).rows[0];
  if(!p)throw Error('Current approved revision required');
  const violation=await exactRepeatViolation(t,p);
  if(violation)throw Error('Exact repeat blocked: '+violation);
- if(!['approved','scheduled'].includes(p.status)||p.edited_after_approval)throw Error('Current approved revision required');
- if(slot&&!(await t.query("SELECT 1 FROM rotation_slots WHERE id=$1 AND content_id=$2 AND status='confirmed'",[slot,content_id])).rows.length)throw Error('Slot must be human-confirmed');
+ if(p.status!=='scheduled'||p.edited_after_approval||p.approved_content_hash!==p.current_content_hash)throw Error('Current approved revision required');
+ if(!(await t.query("SELECT 1 FROM rotation_slots WHERE id=$1 AND content_id=$2 AND status='confirmed' AND confirmed_by IS NOT NULL AND confirmed_at IS NOT NULL FOR UPDATE",[slot,content_id])).rows.length)throw Error('Slot must be human-confirmed');
+ if(!packageValid(p,package_dir))throw Error('Valid current package required');
  if((await t.query("SELECT 1 FROM publish_instances WHERE content_id=$1 AND account_ref=$2 AND state='unknown'",[content_id,account_ref])).rows.length)throw Error('D3: unknown outcome requires human resolution');
  let pi=(await t.query(`SELECT * FROM publish_instances WHERE content_id=$1 AND account_ref=$2 AND rotation_slot_id IS NOT DISTINCT FROM $3::uuid FOR UPDATE`,[content_id,account_ref,slot])).rows[0];
  if(!pi)pi=(await t.query(`INSERT INTO publish_instances(content_id,content_revision,sent_content_hash,channel,account_ref,rotation_slot_id,mode)
- VALUES($1,$2,$3,$4,$5,$6,'manual') RETURNING *`,[content_id,p.revision,p.hash,p.channel,account_ref,slot])).rows[0];
+ VALUES($1,$2,$3,$4,$5,$6,'manual') RETURNING *`,[content_id,p.revision,p.current_content_hash,p.channel,account_ref,slot])).rows[0];
  if(!['queued','failed_retryable'].includes(pi.state))throw Error('D3: instance '+pi.state+'; no resend');
  const attempt=(await t.query(`INSERT INTO publish_attempts(publish_instance_id,attempt_no)
  SELECT $1,coalesce(max(attempt_no),0)+1 FROM publish_attempts WHERE publish_instance_id=$1 RETURNING *`,[pi.id])).rows[0];
@@ -36,8 +40,8 @@ export async function confirmURL(db,id,url,actor) {
  return tx(db,async t=>{
  const pi=(await t.query('SELECT * FROM publish_instances WHERE id=$1 FOR UPDATE',[id])).rows[0];
  if(!pi||!['sending','unknown'].includes(pi.state))throw Error('Instance not awaiting manual confirmation');
- const p=(await t.query('SELECT *,content_hash(content_library) AS hash FROM content_library WHERE id=$1 FOR UPDATE',[pi.content_id])).rows[0];
- if(p.hash!==pi.sent_content_hash||p.edited_after_approval)throw Error('Content changed since manual attempt; resolve explicitly');
+ const p=(await t.query('SELECT *,content_hash(content_library) AS current_content_hash FROM content_library WHERE id=$1 FOR UPDATE',[pi.content_id])).rows[0];
+ if(p.current_content_hash!==pi.sent_content_hash||p.edited_after_approval)throw Error('Content changed since manual attempt; resolve explicitly');
  await t.query("UPDATE publish_attempts SET outcome='ok',verified_via='itay_manual',finished_at=now() WHERE publish_instance_id=$1 AND outcome IS NULL",[id]);
  await t.query("UPDATE publish_instances SET state='confirmed',external_url=$2,confirmed_by=$3,confirmed_at=now() WHERE id=$1",[id,url,actor.name]);
  await t.query(`UPDATE content_library SET status='published',external_url=$2,published_at=now(),last_published_at=now(),

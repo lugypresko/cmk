@@ -79,7 +79,9 @@ Do not supply private or unconsented source notes: initial idea/source notes are
 
 No global approval of six site facts is required. Unreferenced drafts stay irrelevant. A returned
 fact UUID must be usable or the step stops at `human_gate:approve_used_fact:<UUID>`. Other factual
-claims are still scanned by FactGate, even without fact_ids; unsupported claims block review.
+claims are scanned heuristically by FactGate even without fact_ids. Detected unsupported or nonliteral
+claims block, but extraction is incomplete: review the full text and the report's unclassified spans.
+A deterministic pass does not verify factual truth or semantic support.
 The operator can approve the actually needed fact in a separate human transaction or request a
 new draft without that claim. `pending_fact_keys` by itself is informational, not an approval mandate.
 

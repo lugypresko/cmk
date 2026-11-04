@@ -72,10 +72,32 @@ test('approved package schedules only after explicit human confirmation',async()
  const p=(await db.query('SELECT * FROM cmk.content_library WHERE id=$1',[w.subject_id])).rows[0];assert.equal(p.status,'scheduled');
  const time=new Date(p.scheduled_at);assert.equal(time.getUTCHours(),6);assert.equal(time.getUTCMinutes(),30);
 });
+test('manual handoff requires a confirmed slot and intact current package before any attempt',async()=>{
+ const p=(await db.query('SELECT * FROM cmk.content_library WHERE id=$1',[slot.content_id])).rows[0];
+ const counts=async()=>(await db.query('SELECT (SELECT count(*)::int FROM cmk.publish_instances) AS instances,(SELECT count(*)::int FROM cmk.publish_attempts) AS attempts')).rows[0];
+ const before=await counts();
+ await assert.rejects(beginManual(db,p.id,'test-profile'),/Human-confirmed slot required/);
+ const unconfirmed=(await db.query("SELECT id FROM cmk.rotation_slots WHERE status<>'confirmed' LIMIT 1")).rows[0];
+ assert.ok(unconfirmed);
+ await assert.rejects(beginManual(db,p.id,'test-profile',unconfirmed.id,packageDir),/Slot must be human-confirmed/);
+ const dest=path.join(packageDir,p.id,'r'+p.revision),manifestFile=path.join(dest,'package.json');
+ const manifest=fs.readFileSync(manifestFile,'utf8'),m=JSON.parse(manifest);
+ fs.unlinkSync(manifestFile);
+ await assert.rejects(beginManual(db,p.id,'test-profile',slot.id,packageDir),/Valid current package/);
+ fs.writeFileSync(manifestFile,manifest);
+ const asset=path.join(dest,Object.keys(m.files)[0]),original=fs.readFileSync(asset);
+ fs.appendFileSync(asset,'tamper');
+ await assert.rejects(beginManual(db,p.id,'test-profile',slot.id,packageDir),/Valid current package/);
+ fs.writeFileSync(asset,original);
+ fs.writeFileSync(manifestFile,JSON.stringify({...m,content_hash:'stale-hash'}));
+ await assert.rejects(beginManual(db,p.id,'test-profile',slot.id,packageDir),/Valid current package/);
+ fs.writeFileSync(manifestFile,manifest);
+ assert.deepEqual(await counts(),before);
+});
 test('unknown attempts are blocked at API and DB, then human may record live URL',async()=>{
- const started=await beginManual(db,slot.content_id,'test-profile',slot.id);instance=started.instance_id;
+ const started=await beginManual(db,slot.content_id,'test-profile',slot.id,packageDir);instance=started.instance_id;
  const r=await recordOutcome(db,started.attempt_id,'unknown');assert.equal(r.state,'unknown');
- await assert.rejects(beginManual(db,slot.content_id,'test-profile',slot.id),/unknown/);
+ await assert.rejects(beginManual(db,slot.content_id,'test-profile',slot.id,packageDir),/unknown/);
  await assert.rejects(tx(db,t=>t.query('INSERT INTO publish_attempts(publish_instance_id,attempt_no) VALUES($1,2)',[instance])),/unknown/);
  await assert.rejects(confirmURL(db,instance,'https://www.linkedin.com/posts/test',null));
  await assert.rejects(confirmURL(db,instance,'https://evil.example/posts/test',human));
@@ -133,7 +155,7 @@ test('derivative workflow proceeds through package preview, slot confirm and man
  const s=(await db.query('SELECT * FROM cmk.rotation_slots WHERE rotation_plan_id=$1 AND content_id=$2',[r.context.schedule_plan_id,r.subject_id])).rows[0];assert.ok(s);
  await confirmSlot(db,s.id,human,packageDir);await resumeHuman(db,w.id,human);
  r=await run(db,w.id);assert.equal(r.blocked_on,'human_gate:manual_publish_record');
- const attempt=await beginManual(db,r.subject_id,'test-profile',s.id);
+ const attempt=await beginManual(db,r.subject_id,'test-profile',s.id,packageDir);
  await confirmURL(db,attempt.instance_id,'https://www.linkedin.com/posts/fixture-full-flow',human);
  await resumeHuman(db,w.id,human);assert.equal((await run(db,w.id)).state,'done');
 });
@@ -175,7 +197,7 @@ test('exact repeat reuses the approved revision and blocks when the hash or fact
  assert.equal((await db.query('SELECT status FROM cmk.content_library WHERE id=$1',[id])).rows[0].status,'published');
  await confirmSlot(db,placed.id,human,packageDir);
  const first=(await db.query('SELECT sent_content_hash FROM cmk.publish_instances WHERE content_id=$1 ORDER BY created_at',[id])).rows[0];
- const started=await beginManual(db,id,'test-profile',placed.id);
+ const started=await beginManual(db,id,'test-profile',placed.id,packageDir);
  const inst=(await db.query('SELECT content_revision,sent_content_hash FROM cmk.publish_instances WHERE id=$1',[started.instance_id])).rows[0];
  assert.equal(inst.content_revision,revision);
  assert.equal(inst.sent_content_hash,hash);

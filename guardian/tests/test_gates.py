@@ -65,7 +65,7 @@ class FactGateTests(unittest.TestCase):
         self.assertFalse(r["pass"]); self.assertTrue(r["unsupported_claims"])
 
     def test_approved_fact_listed_passes(self):
-        r = fact_gate.check(piece(BASE + "\n\nI've spent 25+ years in technology and delivery.", fact_ids=[F1]), FACTS)
+        r = fact_gate.check(piece(BASE + "\n\n25+ years in technology and delivery.", fact_ids=[F1]), FACTS)
         self.assertTrue(r["pass"], r["findings"])
 
     def test_approved_fact_not_listed_blocks(self):
@@ -91,9 +91,65 @@ class FactGateTests(unittest.TestCase):
     def test_pre_extracted_claims(self):
         r = fact_gate.check(piece(), FACTS, claims=[{"text": "25+ years", "kind": "fact", "fact_id": F1}])
         self.assertFalse(r["pass"])  # F1 usable but not listed in fact_ids
-        r = fact_gate.check(piece(fact_ids=[F1]), FACTS, claims=[{"text": "25+ years", "kind": "fact", "fact_id": F1},
+        r = fact_gate.check(piece(fact_ids=[F1]), FACTS, claims=[{"text": "25+ years in technology and delivery.", "kind": "fact", "fact_id": F1},
                                                                  {"text": "I keep seeing this", "kind": "experience"}])
         self.assertTrue(r["pass"])
+
+
+    def synthetic_fact(self, he="הפחתנו עיכובי אספקה ב־30%", en="We reduced delivery delays by 30%"):
+        return {**FACTS[0], "statement_he": he, "statement_en": en, "fact_key": "proof.delivery"}
+
+    def test_hebrew_direction_reversal_is_not_support(self):
+        f = self.synthetic_fact()
+        for text in ["הגדלנו עיכובי אספקה ב־30%", "לא הפחתנו עיכובי אספקה ב־30%"]:
+            with self.subTest(text=text):
+                r = fact_gate.check(piece(text, language="he", fact_ids=[F1]), [f])
+                self.assertFalse(r["pass"])
+                self.assertEqual(r["claims"][0]["status"], "semantic_review_required")
+                self.assertEqual(r["claims"][0]["support_basis"], "unverified_candidate")
+
+    def test_english_negation_reversal_and_partial_claims_need_review(self):
+        f = self.synthetic_fact()
+        for text in ["We increased delivery delays by 30%", "We did not reduce delivery delays by 30%",
+                     "Delivery delays by 30%", "We reduced delivery delays by 20%"]:
+            with self.subTest(text=text):
+                r = fact_gate.check(piece(text, fact_ids=[F1]), [f])
+                self.assertFalse(r["pass"])
+                self.assertEqual(r["claims"][0]["status"], "semantic_review_required")
+
+    def test_exact_approved_wording_is_literal_only_not_semantic_approval(self):
+        f = self.synthetic_fact()
+        r = fact_gate.check(piece(f["statement_he"], language="he", fact_ids=[F1]), [f])
+        self.assertTrue(r["pass"])
+        self.assertEqual(r["claims"][0]["support_basis"], "literal_approved_wording")
+        self.assertTrue(r["review"]["human_review_required"])
+        self.assertEqual(r["review"]["semantic_support"], "not_verified")
+        p = piece(f["statement_en"], fact_ids=[F1])
+        s, facts = spec_gate.check(p, CTX), fact_gate.check(p, [f])
+        editorial = editorial_guardian.score(p, CTX, s, facts)
+        report = assemble(p, s, facts, editorial, CTX)
+        self.assertEqual(report["editorial"]["source_supports_wording"], "unverified")
+        self.assertTrue(report["fact"]["review"]["human_review_required"])
+
+    def test_hebrew_assertion_without_numeric_markers_is_extracted(self):
+        r = fact_gate.check(piece("המערכת שומרת נתונים בענן", language="he"), [])
+        self.assertFalse(r["pass"])
+        self.assertEqual(r["claims"][0]["kind"], "fact")
+        self.assertIn("he_assertion", r["claims"][0]["signals"])
+
+    def test_unrecognised_assertion_is_reported_as_unclassified_not_verified(self):
+        r = fact_gate.check(piece("ללקוחותינו קיימת גישה בלעדית לנתונים", language="he"), [])
+        self.assertTrue(r["review"]["unclassified_sentences"])
+        self.assertTrue(r["review"]["human_review_required"])
+        self.assertEqual(r["review"]["extraction"], "heuristic_incomplete")
+
+    def test_fact_id_and_caller_claim_fields_do_not_grant_semantic_support(self):
+        f = self.synthetic_fact()
+        r = fact_gate.check(piece(fact_ids=[F1]), [f], claims=[{
+            "text": "We increased delivery delays by 30%", "kind": "fact", "fact_id": F1,
+            "status": "matched", "support_basis": "literal_approved_wording"}])
+        self.assertFalse(r["pass"])
+        self.assertEqual(r["claims"][0]["status"], "semantic_review_required")
 
 
 class ReportTests(unittest.TestCase):

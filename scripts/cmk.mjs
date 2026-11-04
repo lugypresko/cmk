@@ -64,7 +64,7 @@ try {
  case 'import-past':result=await importPast(db,required('file'),value('language'));break;
  case 'propose-slots':result=await proposeSlots(db,{start_date:required('start'),package_dir});break;
  case 'confirm-slot':result=await confirmSlot(db,required('id'),human(),package_dir);break;
- case 'begin-manual':result=await beginManual(db,required('id'),required('account'),value('slot'));break;
+ case 'begin-manual':result=await beginManual(db,required('id'),required('account'),required('slot'),package_dir);break;
  case 'outcome':result=await recordOutcome(db,required('attempt'),required('outcome'));break;
  case 'posted-url':result=await confirmURL(db,required('id'),required('url'),human());break;
  case 'error-watch':result=await proposeReplay(db,read('input'));break;

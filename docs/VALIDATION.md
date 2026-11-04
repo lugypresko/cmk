@@ -106,3 +106,24 @@ The supplied readiness patch applied cleanly; focused hardening was authorized b
 - Live provider/search compatibility, representative social coverage and editorial quality remain
   unvalidated. Indexed snippets do not prove original openings or successful hooks. The existing
   EditorialGuardian remains heuristic-stub-v0; human quality review is necessary.
+
+
+# Fact support and manual handoff corrections (2026-11-04)
+
+- Reproduced the reported Hebrew direction reversal against the pre-fix code in an isolated Python
+  call: approved “הפחתנו עיכובי אספקה ב־30%” supported “הגדלנו עיכובי אספקה ב־30%” with pass=true/matched.
+  Fixed result: pass=false/semantic_review_required. No actual business fact was approved.
+- Exact approved statement comparison replaces heuristic acceptance; overlap only retrieves candidates.
+  Counterexamples cover Hebrew/English reversal, negation, partial claims, lower numbers, fact-id/output
+  field spoofing, a nonnumeric Hebrew assertion and unclassified Hebrew text. The report exposes pending
+  human review and the editorial stub emits unverified instead of yes for source support.
+- Earlier validation references to unsupported-claim blocking describe exercised examples, not complete
+  extraction or semantic entailment. Unclassified text remains review work and can have deterministic
+  pass=true. A literal approved statement is not a proof of contextual truth. No model can grant approval.
+- beginManual now requires a confirmed slot and scheduled approved hash, then revalidates the package
+  for the current revision/hash before creating records. Tests delete a previously scheduled package,
+  tamper a file or its manifest hash, and supply no/unconfirmed slot: each rejects with zero new instances
+  or attempts. Existing positive publish-record/unknown-resolution/exact-repeat flows still pass.
+- Clean test_all.sh --fresh:22/22 SQL/apply steps,100 tests passed (Guardian25, files8, fonts7, runtime17,
+  LLM14, research29). Guardian25 passed again after adding report propagation assertions. All approvals
+  and transport are synthetic and isolated. No paid calls, publishing, real approvals or merge.

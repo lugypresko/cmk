@@ -52,8 +52,8 @@ unknown IDs, model-generated numeric metrics and a claimed observed opening that
 captured full-post first line. Snippets may inform original hook candidates, but cannot establish a
 working/observed hook. Missing examples are left empty with coverage notes; counts are never padded.
 These structural checks cannot verify factual or metric claims embedded in prose; human source review remains necessary.
-Collected external claims remain research proposals, not approved_facts. FactGate still checks every
-publishable claim, including claims with no fact_ids. No global approval of six unused site facts is needed.
+Collected external claims remain research proposals, not approved_facts. FactGate scans text heuristically, including text with no fact_ids. Extraction can miss claims;
+review unclassified spans and the entire wording against sources. A pass is not semantic verification. No global approval of six unused site facts is needed.
 
 ## CLI: offline first
 

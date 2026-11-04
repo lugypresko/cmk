@@ -107,7 +107,7 @@ node scripts/cmk.mjs import-past --file imports/past_content/post.md --language 
 node scripts/cmk.mjs measure --id CONTENT_UUID --file analytics.xlsx --window 72h --captured-at 2026-11-03T12:00:00+02:00
 node scripts/cmk.mjs propose-slots --start 2026-11-04
 node scripts/cmk.mjs confirm-slot --id SLOT_UUID --confirmer Itay
-node scripts/cmk.mjs begin-manual --id CONTENT_UUID --account itay-profile --slot SLOT_UUID
+node scripts/cmk.mjs begin-manual --id CONTENT_UUID --account itay-profile --slot SLOT_UUID --packages packages
 node scripts/cmk.mjs outcome --attempt ATTEMPT_UUID --outcome unknown
 node scripts/cmk.mjs posted-url --id INSTANCE_UUID --url https://www.linkedin.com/posts/POST --confirmer Itay
 ```
@@ -197,3 +197,12 @@ Use research-plan and research-import without network calls; research-collect ne
 source access/payment settings. Inspect research-status (collection) and research-agents (work item)
 to see topics/hooks/synthesis roles. The profile and each role prompt need deliberate human review
 before activation. Activating a prompt is not permission to pay for search or model requests.
+
+
+## Manual handoff prerequisites (2026-11-04)
+
+begin-manual requires --slot and rechecks a human-confirmed slot for the same content, scheduled/current
+approved hash and an intact package for that exact revision. Use --packages when the package directory
+is not the default. Missing/stale/deleted/tampered packages block before a publish instance or attempt is
+created, even if a slot was confirmed earlier. There is no implicit unscheduled exception path.
+This authorizes only a manual handoff; it does not publish or replace content/source review.
