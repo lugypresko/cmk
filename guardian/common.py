@@ -33,7 +33,7 @@ def load_context(fixtures_dir: Path | str | None = None) -> dict:
     guardian_checklist.json from the repo root."""
     d = Path(fixtures_dir) if fixtures_dir else FIXTURES
     ctx = {
-        "checklist": load_json(ROOT / "guardian_checklist.json"),
+        "checklist": load_json(d / "checklist.json"),
         "format_specs": load_json(d / "format_specs.json"),
         "brand_voice": load_json(d / "brand_voice.json"),
         "icp": load_json(d / "icp_profile.json"),

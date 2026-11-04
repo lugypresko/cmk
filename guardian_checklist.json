@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "cmk-guardian-checklist",
   "owner": "The Push / Itay Foyerstein",
   "source_of_truth": "https://itayfoyerstein.com",
@@ -117,7 +117,7 @@
         ]
       },
       "params": {
-        "regex": "(₪|\\$|€|NIS|ש\"ח|\\bprice\\b|\\bpricing\\b|discount|\\boff\\b\\s*\\d|free (session|call|trial)|הנחה|מחיר|חינם)"
+        "regex": "(₪|\\$|€|\\bNIS\\b|ש\"ח|\\bprice\\b|\\bpricing\\b|discount|\\boff\\b\\s*\\d|free (session|call|trial)|הנחה|מחיר|חינם)"
       }
     },
     {

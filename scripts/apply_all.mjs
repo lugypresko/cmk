@@ -1,4 +1,4 @@
-// CMK Phase 0 — apply schema + migrations 002..005 to a persistent local PGlite DB,
+// CMK Phase 0 — apply schema + migrations 002..017 to a persistent local PGlite DB,
 // then run smoke tests. ON_ERROR_STOP semantics: first failure exits non-zero.
 // Usage: NODE_PATH=/tmp/pgl/node_modules node scripts/apply_all.mjs [--fresh]
 // Local PGlite only — this is NOT a hosted / production Postgres.
@@ -18,6 +18,7 @@ fs.mkdirSync(DB_DIR, { recursive: true });
 
 const db = new PGlite(DB_DIR, { extensions: { pgcrypto } });
 const results = [];
+await db.exec("SET cmk.actor_type='agent'; SET cmk.actor_name='migration-runner'; SET cmk.run_id='local-apply';");
 const step = async (label, file, { optional = false } = {}) => {
   const p = path.join(ROOT, file);
   try {
@@ -52,8 +53,18 @@ for (const [label, file, marker] of [
   if (exists && (marker ? await migApplied(marker) : true) && label !== '005') { console.log(`SKIP  ${label.padEnd(8)} ${file} (already applied)`); continue; }
   await step(label, file);
 }
+// New numbered migrations are tracked individually, never inferred from unrelated tables.
+await db.exec('CREATE TABLE IF NOT EXISTS cmk.runtime_migrations (filename text PRIMARY KEY, applied_at timestamptz DEFAULT now())');
+for (const file of fs.readdirSync(path.join(ROOT, 'migrations')).filter(f => /^\d{3}_.*\.sql$/.test(f) && Number(f.slice(0,3))>=6).sort()) {
+  if ((await db.query('SELECT 1 FROM cmk.runtime_migrations WHERE filename=$1',[file])).rows.length) continue;
+  await step(file.slice(0,3), 'migrations/' + file);
+  await db.transaction(async t=>{
+    await t.exec("SET LOCAL cmk.actor_type='agent'; SET LOCAL cmk.actor_name='migration-runner'; SET LOCAL cmk.run_id='local-apply';");
+    await t.query('INSERT INTO cmk.runtime_migrations(filename) VALUES ($1)',[file]);
+  });
+}
 // Tests run inside a transaction and are rolled back so the durable DB stays clean.
-for (const [label, file] of [['test23', 'migrations/test_002_003.sql'], ['test5', 'migrations/test_005.sql']]) {
+for (const [label, file] of [['test23', 'migrations/test_002_003.sql'], ['test5', 'migrations/test_005.sql'], ['test11', 'migrations/test_011.sql'], ['test12', 'migrations/test_012.sql'], ['test13', 'migrations/test_013.sql']]) {
   const sql = fs.readFileSync(path.join(ROOT, file), 'utf8');
   try {
     await db.exec('BEGIN;'); await db.exec(sql); await db.exec('ROLLBACK;');

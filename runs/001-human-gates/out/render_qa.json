@@ -1,0 +1,78 @@
+{
+  "variant": "B",
+  "slide_count": 8,
+  "pdf": "runs/001-human-gates/out/carousel_he_variant_b.pdf",
+  "pdf_sha256": "0bc2cedbb8f902d5531cb238d995a100450febbbb04753d6ef405cceaaa2eb22",
+  "slides": [
+    {
+      "n": 1,
+      "title": "יותר תפוקת AI. אותן החלטות על השולחן שלכם.",
+      "body": "איפה האדם יושב בתהליך חשוב יותר מאיזה מודל אתם מריצים.",
+      "path": "runs/001-human-gates/out/slide_01.png",
+      "sha256": "daa2acaeaa8480730f5749b1762043e34c8c7853235f7dc4f30fb208369b4424",
+      "qa": []
+    },
+    {
+      "n": 2,
+      "title": "בדקו איפה אתם יושבים היום",
+      "body": "עוברים על שלבי ביניים. מאשרים טיוטות. עונים \"זה בסדר?\" בסלאק. האחריות הפכה בשקט לנוכחות.",
+      "path": "runs/001-human-gates/out/slide_02.png",
+      "sha256": "328f07bd25d5c74cd5d36a6078df86d82a2885e00ba719e883bf69c2d17b97a3",
+      "qa": []
+    },
+    {
+      "n": 3,
+      "title": "בהתחלה: אדם מחזיק את הדרישה",
+      "body": "מה פותרים. איך נראה \"גמור\". מה אסור שיישבר.",
+      "path": "runs/001-human-gates/out/slide_03.png",
+      "sha256": "43fb0a3db2df630a9bafbe4fb0c8f10bd17875ba4bd479f4add0b30c8009e626",
+      "qa": []
+    },
+    {
+      "n": 4,
+      "title": "באמצע: שערים דטרמיניסטיים",
+      "body": "לינטרים, טסטים, צ'קליסט עם רף ברור. אותה תשובה בכל פעם.",
+      "path": "runs/001-human-gates/out/slide_04.png",
+      "sha256": "1ed1074a49f15e550448453cd9897c0f37c3816c8d6eee435e118d10f8f12752",
+      "qa": []
+    },
+    {
+      "n": 5,
+      "title": "בסוף: אדם מחזיק את שיקול הדעת",
+      "body": "לא \"זה עבר?\". השאלה היא \"זה הדבר הנכון, ומשחררים?\".",
+      "path": "runs/001-human-gates/out/slide_05.png",
+      "sha256": "5ee61da7906320e7c7d38498a963ba4f650644e36263c2096e4281a1a484f94d",
+      "qa": []
+    },
+    {
+      "n": 6,
+      "title": "כלל או שיקול דעת?",
+      "body": "אם בדיקה נותנת אותה תשובה לכל מי שבודק — כלל לשער. אם צריך הקשר שרק לכם יש — שיקול דעת בסוף.",
+      "path": "runs/001-human-gates/out/slide_06.png",
+      "sha256": "1493bdc569c0f37af77fbf7a3754df5fddb0a8e405a0cba7b6e47c70be169c9d",
+      "qa": []
+    },
+    {
+      "n": 7,
+      "title": "צעד לשבוע הזה",
+      "body": "קחו סקירה שחוזרת אליכם. סמנו כל סעיף: כלל או שיקול דעת. כללים לשער, שיקול דעת לסוף.",
+      "path": "runs/001-human-gates/out/slide_07.png",
+      "sha256": "03619f0d895eecccea8faf0bbc388312be703f8777d3be53bc701c8cf56a2e08",
+      "qa": []
+    },
+    {
+      "n": 8,
+      "title": "איפה יושב האדם בתהליך שלכם?",
+      "body": "בהתחלה ובסוף, או באמצע של כל שלב?",
+      "path": "runs/001-human-gates/out/slide_08.png",
+      "sha256": "e1192e45daeba18e47deee1d62c8f5a8eb9e68967f1b10df76dad639936dcd76",
+      "qa": []
+    }
+  ],
+  "render_qa": {
+    "pass": true,
+    "issues": [],
+    "proposed_fixes": []
+  },
+  "note": "Stripe slide replaced with rule/judgment slide for Variant B (no unapproved fact)."
+}

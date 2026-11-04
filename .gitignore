@@ -16,3 +16,7 @@ node_modules/
 
 # Environment and secrets
 .env*
+
+# Local generated packages and fixture renders
+packages/
+tmp/

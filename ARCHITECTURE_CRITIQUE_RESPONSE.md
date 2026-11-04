@@ -27,7 +27,7 @@ Status key: `already_in_spec` · `partial` · `missing`. Priority: **P0** = befo
 | D | ErrorWatcher limited to tested, approved proposals | partial | Path: event → classify (content / policy / infra) → propose → replay on past examples → Itay approves → new version | P1 |
 | E | Business outcome + capacity in planning; avatar/disclosure as explicit expansion requirements | partial | Lead owner + next action (= #6), weekly approval budget (= #7). Avatar and disclosure stay Phase 3 gates (already there) | P1 |
 
-**Already covered (keep):** versioned memory, with `prompt_versions` immutable and one active per key. The DB refuses `approved/scheduled/published` without human `approved_by`. ErrorWatcher only proposes. Two formats ship first. Volume is a cap, not a goal. Recycling makes a new revision, re-run through Guardian and approval. Avatar needs a consent fact and the B-13 disclosure check. Measurement never feeds Guardian scores, and small n is treated as a hypothesis.
+**Already covered (keep):** versioned memory, with `prompt_versions` immutable and one active per key. The DB refuses `approved/scheduled/published` without human `approved_by`. ErrorWatcher only proposes. Two formats ship first. Volume is a cap, not a goal. A refresh Itay did not mark exact-repeatable makes a new revision, re-run through Guardian and approval. An exact repeat of a marked approved version is the D12 override below. Avatar needs a consent fact and the B-13 disclosure check. Measurement never feeds Guardian scores, and small n is treated as a hypothesis.
 **Truly missing:** publish attempts and unknown outcomes. Approval bound to a content hash (a trigger that freezes approved rows). A persisted per-derivative work state. Lead handling after a conversation. A definition of what "100" counts. A rendered-file QA step. The memory kind/scope/validity split.
 
 ---
@@ -146,7 +146,7 @@ CREATE TABLE publish_attempts (
 - Four separate counters per day and per week: `new_families` (new Cores), `new_derivatives` (new pieces needing Guardian + approval), `repeat_publishes` (publish_instances of already-approved revisions), `approval_items` (items waiting on Itay).
 - `rotation_plans.constraints.approval_budget_minutes_per_week`. Itay sets the value; none is assumed here. The Scheduler can't propose a plan whose new approval items exceed the budget, based on Itay's measured review minutes from `audit_log` (no estimate invented).
 - The ~100 target gets restated as `publish_instances/day` (whether that's right is a decision; see D5 note).
-- **Repeat-every-14-days** (critique point): this repo says recycling is a new revision, never verbatim (scheduler_14day.md). The critique says an exact repeat can be fine if each repeat has a repeat count or end date, a fact-validity check, and a stop when a fact changes. That's a conflict with the current rule, so Itay decides (see D-extra in SPEC_GAP).
+- **Repeat-every-14-days** (critique point): resolved by the D12 override on 2026-11-03 20:35 Asia/Jerusalem. A marked approved version may repeat verbatim every 14 days until a date or N repeats, and is refused when the hash drifts or a fact is unusable. A non-repeatable refresh is still a new revision.
 
 ---
 
@@ -221,7 +221,7 @@ CREATE TABLE work_transitions (kind text, from_state text, to_state text, actor_
 - **D4.** Rules, templates and prompts: **A** = move to Git (PR = proposal, merge = approval) · **B** = keep in Postgres `prompt_versions` as today
 - **D5.** Lead handling after an ICP conversation: **A** = a small `lead_threads` table inside CMK (owner, next action, proposal, payment) · **B** = hand off to an external CRM, with CMK storing only a link
 
-(Also open, already in SPEC_GAP: what "100/day" counts, the weekly approval-time budget value, and exact repeat vs. new revision on 14-day recycling.)
+(Also open, already in SPEC_GAP: what "100/day" counts, and the weekly approval-time budget value. Exact repeat vs. new revision was closed by the D12 override.)
 
 ---
 
@@ -239,10 +239,22 @@ Itay's answers, recorded at 16:28 Asia/Jerusalem. They're binding. Schema draft:
 ### Also locked (Itay-default, pending override)
 - **The 100/day definition:** four separate counters, (1) new families/cores, (2) new derivatives, (3) repeat publish instances, (4) items awaiting approval. The ~100 goal is mainly **(3) publish instances via reuse + rotation**, not 100 new cores/day. Views: `volume_daily_v`, `approval_queue_v`.
 - **Schedule authority:** `rotation_slots` (+ `publish_instances`). Google Calendar is a one-way view, and calendar edits are never read back.
-- **14-day recycle:** the current rule stays: recycle = new revision + Guardian + approval, never a verbatim repost. This conflicts with the critique's "exact copy OK", and Itay's existing SPEC wins unless he changes it.
+- **14-day recycle:** superseded for marked pieces by the D12 override below. Unmarked evergreen refreshes stay on the new-revision path.
 - **Orchestrator:** a `work_items` + `work_transitions` state machine in plain Postgres. Human-only transitions are enforced, attempt_count ≤ max_attempts, and a stop_reason is required on failed/stopped. No Temporal, no workflow engine.
 
 ### Superseded proposals
 - #2's `approvals` table and freeze trigger → **dropped** (D2).
 - #4's Git storage option → **dropped** (D4).
 - #3's "auto-resend once after a negative provider lookup" → **dropped** (D3).
+
+### D12 override — exact 14-day repeat (2026-11-03, 20:35 Asia/Jerusalem)
+Itay locked this after D1–D5. It replaces the "never a verbatim repost" default **only** for a LinkedIn `text_post` or `carousel` he marks `is_exact_repeatable`.
+
+- One human grant of an exact version: `repeat_approved_content_hash` plus `repeat_asset_hashes`.
+- He sets both `repeat_until` and `max_repeats`. Cadence is `repeat_every_days` (default 14, never shorter). `repeats_done` counts later live appearances.
+- Each repeat is a new `publish_instance` of the same `content_id`, revision, and `sent_content_hash`. D3 idempotency and unknown-refusal are unchanged. Nothing here turns on an auto-publish adapter.
+- The scheduler's 4-day same-core spacing and "already in an open plan" exclusion have an explicit exception for that slot. Quiet days stay manual. Hebrew holidays are not inferred.
+- **D2 tension, resolved without a freeze:** the approved hash has to stay meaningful, and edits still do not revoke approval. The scheduler and the manual send path refuse the repeat when `edited_after_approval` is set, the live hash or asset checksums differ, or a referenced fact is expired or retired (`valid_until` / `usable_facts_v`). The approval remains.
+- When the piece is not marked repeatable, or the facts have changed, the path is still a new revision plus Guardian and approval. The scheduler does not create that row.
+
+Schema: `migrations/011_exact_repeat.sql`. Behavior: `runtime/scheduler.mjs`. How Itay marks a piece: `docs/OPERATIONS.md`.
