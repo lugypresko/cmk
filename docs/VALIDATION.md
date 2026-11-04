@@ -84,3 +84,25 @@ The supplied readiness patch applied cleanly; focused hardening was authorized b
   must select the endpoint/model/rates/budget/key, approve prompts/content and explicitly enable paid
   access before live validation. The accounting guard uses configured rates and conservative estimates,
   not a guarantee of provider-side billing. Editorial remains heuristic-stub-v0.
+
+
+# Phase 0.4 focused CMK runtime research agents (2026-11-04)
+
+- Base phase-0-3-llm-runtime verified at d7dd9038a7f1606390e0a617924de1851ec6eaf0.
+- `scripts/test_all.sh --fresh`: 22/22 schema/migration/rollback SQL steps passed through 017.
+  Guardian 19, files 8, fonts 7, existing runtime 16, LLM 14, focused research 29: **93 tests passed**.
+- Research coverage: separate topic/hook/synthesis prompts and durable tasks, original evidence plus
+  upstream outputs, shared budget, human insight stop, profile/prompt activation gates before transport,
+  offline plan/import, focused query/relevance filters, provenance/unknown metrics, snippets vs observed
+  full-post openings, unknown source/metric refusal and independent source budget/access/payment gates.
+- Legacy transport tests explicitly activate research.v0 v1 in their isolated DB; focused tests exercise
+  v2 and both additional roles. A new draft version is never accidentally activated by a blanket update.
+- All source/model transport used injected mocks. Synthetic human approvals exist only in isolated
+  test DBs. Persistent local DB: zero llm_calls, zero research_requests, zero active prompts/profiles,
+  zero approved facts and six draft site facts. No real model/search call, business approval, publication,
+  merge or hosted migration occurred. Generated fixture IDs were restored after fresh validation.
+- A final review tightened full-first-line opening checks and verified a new draft profile does not
+  displace an approved active version. Structured validation cannot establish the truth of prose claims.
+- Live provider/search compatibility, representative social coverage and editorial quality remain
+  unvalidated. Indexed snippets do not prove original openings or successful hooks. The existing
+  EditorialGuardian remains heuristic-stub-v0; human quality review is necessary.

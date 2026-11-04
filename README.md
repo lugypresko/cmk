@@ -96,3 +96,15 @@ full memory/insight/Core context, human approval stops and local budget/audit le
 switch and `--allow-paid`; `run --offline` executes deterministic/fixture stages without model calls.
 No provider, model, prices or payment access is preselected. All real prompts/facts remain unapproved.
 A mocked end-to-end test reaches a packaged HE LinkedIn text post, stopping for human review.
+
+
+## Focused research agents inside CMK
+
+CMK now has separate TopicResearchAgent, HookResearchAgent and ResearchSynthesisAgent roles,
+followed by the existing CoreCreator and Repurposer. Each research role has its own approved-prompt
+boundary, durable task/output and shared run budget. Deterministic source/claim/spec checks guard the
+handoffs; EditorialGuardian remains a heuristic stub requiring human quality review.
+See [docs/RESEARCH_RUNTIME.md](docs/RESEARCH_RUNTIME.md) for public-source collection/import,
+The Push/management/bottleneck/AI Code Factory focus, source provenance and independent search-fee
+permission. Profile and new prompts are seeded draft/inactive. Mock tests do not establish live coverage
+or successful hooks; snippets cannot prove original openings or effectiveness.

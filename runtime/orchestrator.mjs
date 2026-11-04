@@ -1,6 +1,7 @@
 import {tx,root} from './db.mjs';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
+import {runResearchAgents} from '../research/coordinator.mjs';
 import {complete,config,hash} from '../llm/client.mjs';
 import {research,createCore,repurpose,guardian,prepareJudgment,promptKeys} from './agents.mjs';
 import {qa,buildPackage} from './production.mjs';
@@ -37,8 +38,10 @@ export async function tick(db,id,runner='local-runner',options={}) {
   // Reserve costs and make external calls outside the content transaction. A rollback cannot erase spend.
   const input=w.step==='create_core'?{insight_id:w.context.insight_id,language:w.context.language,goal:w.context.goal}:w.context;
   prepared=await tx(db,t=>prepareJudgment(t,promptKeys[w.step],input));
-  generated=await complete(db,prepared,{runId:w.run_id,callKey:w.id+':'+w.step,
-   cfg:config(options.env||process.env,options.allowPaid===true),fetchImpl:options.fetchImpl});
+  const cfg=config(options.env||process.env,options.allowPaid===true);
+  generated=w.step==='research'&&prepared.prompt.params.requires_collected_evidence?
+   await runResearchAgents(db,prepared,{work:w,cfg,fetchImpl:options.fetchImpl}):
+   await complete(db,prepared,{runId:w.run_id,callKey:w.id+':'+w.step,cfg,fetchImpl:options.fetchImpl});
  }
  const generatedProvider=prepared?async request=>{
   if(hash(request)!==hash(prepared))throw Error('llm_context_changed:review_before_retry');
