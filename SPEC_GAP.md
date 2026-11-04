@@ -7,7 +7,7 @@ Status after this change: ✅ done · 🟡 partial · ❌ missing · **?** unkno
 ## A. Scope and goals
 | SPEC item | Status | Where | v0 choice / note |
 |---|---|---|---|
-| Idea in → researched multi-format package with approval gates | 🟡 | runtime/orchestrator.mjs | Fixture workflows run to every human gate; optional judgment provider requires approved DB prompt. No production LLM wired. |
+| Idea in → researched multi-format package with approval gates | 🟡 | runtime/orchestrator.mjs | Workflows preserve human gates; optional LLM adapter and three focused research roles implemented. Live provider/source configuration remains pending. |
 | Success = time saved + ICP conversations | 🟡 | performance_logs, measurement_loop.md | Columns and loop are defined. No baseline for time saved yet (Itay sets it). Nothing captured. |
 | ~100 pieces/day via 14-day rotation | 🟡 | scheduler_14day.md, migration 002 | Model and algorithm done. **v0 cap is 1 LinkedIn post/day.** The volume is a later ceiling, and it's on purpose. |
 | Trust-first: human at start and end | ✅ | CHECKs, triggers, agents.md | It's stricter in v1: format-enabled trigger, stub-inactive CHECK, audit_log. |
@@ -43,7 +43,7 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 |---|---|---|---|
 | Business memory (voice, ICP, facts, insights, past content) | ✅ schema / 🟡 data | schema.sql | Facts still `draft`. HE seeds `needs_review`. Past posts not imported (only 2 Stripe Minions seeds as JSON). |
 | audit_log | ✅ | 002 §7 | Append-only. Triggers on 9 tables + thresholds. Actor comes from `SET LOCAL cmk.*`. |
-| prompt_versions | ✅ schema / 🟡 draft data | 002 + 008 | Three draft/inactive proposals; human approval/activation pending. |
+| prompt_versions | ✅ schema / 🟡 draft data | 002 + 008 | Versioned draft/inactive proposals including distinct topic/hook/synthesis prompts (015); human approval/activation pending. |
 | 14-day rotation columns | ✅ | 002 §5 | `rotation_plans`, `rotation_slots`, content_library `rotation_plan_id/slot_id`, evergreen/recycle. |
 | Per-format payload storage | ✅ | content_library.payload + payload_ok() | |
 | Media assets (files, licenses) | ✅ v0 PDF QA / 🟡 rendering | 005 media_assets + runtime/files.py | PDF extraction, RTL, fonts, text, count, dimensions, alt and checksum verified. MediaProducer and other extractors deferred. |
@@ -55,7 +55,7 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 | SPEC item | Status | Note |
 |---|---|---|
 | Agent roster | 🟡 | 9 agents defined, plus MediaProducer (*proposed, not from the SPEC text*). The SPEC's own roster is **?** |
-| Agents as running code | ✅ v0 fixture runtime / 🟡 LLM | Draft wrappers + Orchestrator implemented; no production model provider configured. |
+| Agents as running code | ✅ v0 fixture runtime / 🟡 LLM | Topic/hook/synthesis runtime agents + CoreCreator/Repurposer, separate prompts and durable outputs. Editorial remains heuristic; no live model configured. |
 | Orchestration runtime / tech stack | ✅ v0 | Plain PGlite/Postgres state, leases, work_transitions policy and append-only work_events history. |
 
 ## F. v0 choices that differ from the SPEC (on purpose)
@@ -69,7 +69,7 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 1. Human approvals: insight, Core and derivative revisions used in a run. Approve only facts actually needed by its claims (not all six site facts). Unused drafts and pending_fact_keys alone do not require approval. HE seed review and carousel review remain human work.
 2. Editorial calibration on 20+ human-labelled exemplars before relying on scores to reduce human review or increase thresholds/volume. It is not a prerequisite for the first human-reviewed artifact. A configurable generation adapter exists; real provider credentials/model/payment permission remain unconfigured.
 3. Import 20–50 real posts and let Itay mark exemplars; loader exists.
-4. Review/activate existing research.v0, core_creator.v0 and repurposer.v0 draft prompts as a human. Supply explicit provider/model/rates/budget/key and dual paid opt-in before live calls. See docs/LLM_RUNTIME.md.
+4. Review/activate the focused research profile, research.v0 v2, research.topics.v0, research.hooks.v0, core_creator.v0 and repurposer.v0 as a human. Supply explicit provider/model/rates/budget/key and dual paid opt-in before live calls. See docs/LLM_RUNTIME.md and docs/RESEARCH_RUNTIME.md.
 5. Real carousel rendering/visual preview and media storage/licensing policy; v0 PDF RenderQA is built.
 6. Time-saved baseline and human-confirmed ICP metrics; xlsx import is built.
 7. Hosted DB migrations have not been applied; all validation is local PGlite.

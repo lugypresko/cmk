@@ -9,3 +9,4 @@ python3 -m unittest runtime.test_files
 python3 -m unittest cmk_ops.test_fonts
 node --test runtime/tests/runtime.test.mjs
 node --test llm/tests/client.test.mjs
+node --test research/tests/*.test.mjs

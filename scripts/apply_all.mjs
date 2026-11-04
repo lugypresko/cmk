@@ -1,4 +1,4 @@
-// CMK Phase 0 — apply schema + migrations 002..014 to a persistent local PGlite DB,
+// CMK Phase 0 — apply schema + migrations 002..017 to a persistent local PGlite DB,
 // then run smoke tests. ON_ERROR_STOP semantics: first failure exits non-zero.
 // Usage: NODE_PATH=/tmp/pgl/node_modules node scripts/apply_all.mjs [--fresh]
 // Local PGlite only — this is NOT a hosted / production Postgres.

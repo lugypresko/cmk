@@ -188,3 +188,12 @@ See [LLM_RUNTIME.md](LLM_RUNTIME.md) for `start`, `run --allow-paid`, `run --off
 `retry` and `llm-status`. The original keys are reused; no duplicate prompt namespace is created.
 Provider selection, model, prices, API key, budget and payment permission must be supplied explicitly.
 No real calls are needed for `scripts/test_all.sh --fresh`; all transport tests use injected mocks.
+
+
+## Focused research and runtime agent inspection
+
+See [RESEARCH_RUNTIME.md](RESEARCH_RUNTIME.md) and [RESEARCH_PROMPT.md](RESEARCH_PROMPT.md).
+Use research-plan and research-import without network calls; research-collect needs independent
+source access/payment settings. Inspect research-status (collection) and research-agents (work item)
+to see topics/hooks/synthesis roles. The profile and each role prompt need deliberate human review
+before activation. Activating a prompt is not permission to pay for search or model requests.

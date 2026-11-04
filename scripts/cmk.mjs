@@ -2,6 +2,7 @@
 // Explicit commands only. There is no auto-publish adapter.
 import fs from 'node:fs';
 import {config,executionMode} from '../llm/client.mjs';
+import {planResearch,collectResearch} from '../research/runtime.mjs';
 import path from 'node:path';
 import {openDB,root,journal} from '../runtime/db.mjs';
 import {enqueue,run,resumeHuman,preview,retryHuman} from '../runtime/orchestrator.mjs';
@@ -20,7 +21,15 @@ try {
  db=await openDB();let result;
  switch(op) {
  case 'enqueue': result=await enqueue(db,required('kind'),read('input'));break;
- case 'start':result=await enqueue(db,'core',{idea:required('idea'),language:value('language')||'he',package_dir});break;
+ case 'start':result=await enqueue(db,'core',{idea:value('idea')||'Find an evidenced content direction from the supplied research.',language:value('language')||'he',package_dir,...(value('research-id')?{research_run_id:value('research-id')}:{})});break;
+ case 'research-plan':result=await planResearch(db,{key:value('profile')||undefined});break;
+ case 'research-import':result=await collectResearch(db,{key:value('profile')||undefined,imported:read('file')});break;
+ case 'research-collect': {
+ if(!args.includes('--allow-source-calls')){result=await planResearch(db,{key:value('profile')||undefined});break;}
+ result=await collectResearch(db,{key:value('profile')||undefined,online:true});break;
+ }
+ case 'research-status':result=(await db.query('SELECT id,provider,state,budget_microusd,created_at,completed_at,coverage FROM cmk.research_runs WHERE id=$1',[required('id')])).rows;break;
+ case 'research-agents':result=(await db.query('SELECT role,state,prompt_version_id,error_code,started_at,completed_at,output FROM cmk.research_agent_tasks WHERE work_item_id=$1 ORDER BY started_at',[required('id')])).rows;break;
  case 'run': {
   const mode=executionMode(args);
   if(mode==='--allow-paid') {
@@ -60,7 +69,7 @@ try {
  case 'posted-url':result=await confirmURL(db,required('id'),required('url'),human());break;
  case 'error-watch':result=await proposeReplay(db,read('input'));break;
  case 'status':result=(await db.query('SELECT id,kind,state,step,blocked_on,stop_reason FROM cmk.work_items ORDER BY created_at')).rows;break;
- default:throw Error('Commands: start enqueue run retry multiply llm-status resume qa package measure import-past propose-slots confirm-slot begin-manual outcome posted-url error-watch status');
+ default:throw Error('Commands: research-plan research-import research-collect research-status research-agents start enqueue run retry multiply llm-status resume qa package measure import-past propose-slots confirm-slot begin-manual outcome posted-url error-watch status');
  }
  console.log(JSON.stringify(result,null,2));
  // Each CLI invocation is mirrored in an append-only entry with a unique increasing suffix.

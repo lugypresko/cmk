@@ -117,3 +117,14 @@ Itay locked D1–D5 on 2026-11-03 (`ARCHITECTURE_CRITIQUE_RESPONSE.md` → *Deci
 - The journal is append-only. A correction goes in a new entry that references the old `id`.
 - **The Orchestrator reads the last N entries (default N=20) before planning**, and checks open `human_gate`s first.
 - See `journal/AGENT_JOURNAL.md`.
+
+
+## Implemented focused research runtime (2026-11-04)
+
+The ResearchAgent responsibility is implemented as TopicResearchAgent → HookResearchAgent →
+ResearchSynthesisAgent, each with its own prompt and durable research_agent_tasks row. They operate
+inside CMK and pass source-referenced outputs to the next role. ResearchSynthesisAgent proposes one
+insight; CoreCreator and Repurposer proceed only after the existing human gates. Source collection,
+evidence validation and SpecGate/FactGate remain code per D1. EditorialGuardian is currently a
+heuristic stub, not an implemented LLM judge; human editorial review remains necessary.
+See [docs/RESEARCH_RUNTIME.md](docs/RESEARCH_RUNTIME.md). No role approves content or facts.

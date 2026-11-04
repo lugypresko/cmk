@@ -36,7 +36,7 @@ test('explicit model/key/rates/HTTPS required; keys alone do not authorize calls
  assert.throws(()=>config({...env,...patch},true));
 });
 test('approved prompt and public usable facts are loaded without unused draft facts',async()=>{
- await tx(db,t=>t.query("UPDATE prompt_versions SET status='approved',is_active=true,approved_by='TEST HUMAN',approved_at=now() WHERE prompt_key IN ('research.v0','core_creator.v0','repurposer.v0')"),human);
+ await tx(db,t=>t.query("UPDATE prompt_versions SET status='approved',is_active=true,approved_by='TEST HUMAN',approved_at=now() WHERE prompt_key IN ('research.v0','core_creator.v0','repurposer.v0') AND version=1"),human);
  request=await tx(db,t=>prepareJudgment(t,'research.v0',{idea:'TEST IDEA',source_notes:'TEST SOURCE',language:'he'}));
  assert.equal(request.input.idea,'TEST IDEA');assert.equal(request.input.source_notes,'TEST SOURCE');
  assert.equal(request.memory.approved_facts.length,0);assert.ok(request.memory.brand_voice.promise_en);
