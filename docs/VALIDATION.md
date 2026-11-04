@@ -2,7 +2,7 @@
 
 Validated locally on PGlite PostgreSQL; no hosted/prod database changed.
 
-- Fresh apply: schema + 002–011 + three rollback SQL smoke tests, 14/14 steps passed.
+- Fresh apply: schema + 002–012 + four rollback SQL smoke tests, 16/16 steps passed.
 - Guardian unit suite: 19 passed.
 - File/import unit suite: 8 passed, including embedded PDF fonts, text drift, alt text, page count,
   correct Hebrew RTL and incorrectly ordered Hebrew, package approval/edit guards and asset tamper.
@@ -42,3 +42,5 @@ closed. Local `--confirmer` is an operator declaration, not authentication. Auth
 hosted migration rollout, real media production/storage and a production LLM integration remain future
 operational work. No new format, higher threshold, automatic publisher or volume ramp was enabled.
 Exact repeat is opt-in per piece (docs/OPERATIONS.md). It does not publish by itself.
+
+Run 001 local E2E slice (2026-11-04): `scripts/run_001_e2e_demo.sh` and `python -m cmk_ops` read and write `runs/001-human-gates/out/`. The checked-in HE Variant B package is `ready_for_human_approval`, not an approval and not a publish. Migration `012_e2e_chain_slice.sql` is the renumbered grill migration. Brief, Ingest, Research, and LeadOps remain the stub journal.

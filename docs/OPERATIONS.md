@@ -105,6 +105,18 @@ It leaves missing candidates `open`. Daily cap is always 1 LinkedIn post, across
 No Calendar integration is created. Disabled formats are not selected. Quiet days stay the manual
 `quiet_days` list; Hebrew holidays are not added for you.
 
+## Run 001 local E2E demo (HE carousel, Variant B)
+
+Lenny's grilled slice is in the repo as local files only. It does not approve the Core, the facts, or this carousel, and it does not post to LinkedIn.
+
+- CLI: `scripts/run_001_e2e_demo.sh` with `build`, `status`, `approve`, `report <url>`, `verify`.
+- Code: `python -m cmk_ops` renders the same HE Variant B carousel into `runs/001-human-gates/out/`.
+- Checked-in artifacts (still awaiting Itay): `approval_package.json` / `.md` (status `ready_for_human_approval`), `render_qa.json` (pass), `publish_verify.json` (`awaiting_package_approval`), `stubs_journal.md`, `carousel_he_variant_b.pdf`, and `slide_01.png`–`slide_08.png`.
+- Postgres gates for that chain are `migrations/012_e2e_chain_slice.sql` (the slice was numbered 006 on the box; 006–011 here were already taken). Smoke test: `migrations/test_012.sql`.
+- EN is not in this slice. Brief, Ingest, Research, and LeadOps stay stubs. RenderQA fixes stay with Itay. Exact repeat (D12) is still marked only after a verified manual publish.
+
+`approve` in the demo script updates the local JSON when you run it. It is not a database approval and it does not publish.
+
 ## Mark a piece exact-repeatable
 
 Do this only after you have approved that revision and checked the package. The statement stores the
