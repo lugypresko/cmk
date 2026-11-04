@@ -33,7 +33,7 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 ## C. Guardian
 | SPEC item | Status | Where | v0 choice / note |
 |---|---|---|---|
-| Brand + ICP scoring | 🟡 | guardian/ + runtime/agents.mjs | SpecGate/FactGate built. EditorialGuardian is heuristic-stub-v0; calibration remains open. |
+| Brand + ICP scoring | 🟡 | guardian/ + runtime/agents.mjs | SpecGate/FactGate built. Fact extraction is incomplete; nonliteral factual support blocks for explicit review. Editorial remains heuristic-stub-v0; human source review and calibration remain open. |
 | Threshold 0.85 | 🟡 | guardian_thresholds table + .md | **v0 keeps 75/70 (active).** `spec_v1` 85/85 is seeded inactive. 0–100 is canonical and 0–1 floats are generated. Applying 0.85 to ICP is an assumption. |
 | Blockers (facts, pricing, clients, confidentiality, language) | ✅ | guardian_rules §1 | |
 | Checks for the 9 new formats | ❌ | guardian_rules §11 | Ids proposed (F-V1, F-P1, F-I1, B-13, B-14). Not written. |

@@ -108,3 +108,9 @@ See [docs/RESEARCH_RUNTIME.md](docs/RESEARCH_RUNTIME.md) for public-source colle
 The Push/management/bottleneck/AI Code Factory focus, source provenance and independent search-fee
 permission. Profile and new prompts are seeded draft/inactive. Mock tests do not establish live coverage
 or successful hooks; snippets cannot prove original openings or effectiveness.
+
+
+FactGate limitation: extraction and candidate matching are heuristic. Detected nonliteral factual
+wording now blocks for explicit support review; literal matches are not proof of truth. Reports expose
+unclassified text and pending human semantic review. Manual handoff rechecks a confirmed slot and a
+valid package against the current approved content hash before creating an attempt.
