@@ -19,8 +19,9 @@ export async function tx(db,fn,actor=agent) {
  });
 }
 export async function journal(db,n,phase,notes) {
- const id=`J-20261103-${String(n).padStart(3,'0')}`;
- const filename=`journal/entries/2026-11-03_${String(n).padStart(3,'0')}_phase_${phase}.md`;
+ const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jerusalem',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const id=`J-${date.replaceAll('-','')}-${String(n).padStart(3,'0')}`;
+ const filename=`journal/entries/${date}_${String(n).padStart(3,'0')}_phase_${phase}.md`;
  const stamp=new Date().toISOString();
  await tx(db,t=>t.query(`INSERT INTO agent_journal(id,ts,agent,workflow,action,status,human_gate,notes,run_id,outputs)
  VALUES($1,$2,'Codex','ops',$3,'done','none',$4,'phase-0-1',$5) ON CONFLICT(id) DO NOTHING`,[id,stamp,`phase-${phase}`,notes,[filename]]));

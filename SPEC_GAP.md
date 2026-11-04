@@ -66,10 +66,10 @@ Stub `format_specs` limits are house defaults or platform limits marked `limits_
 5. **Two recycle paths.** A piece Itay marks exact-repeatable repeats that approved version every 14 days (`repeat_every_days` default 14) until `repeat_until` or `max_repeats`, whichever comes first. He sets both limits when he marks it. Each repeat is a new `publish_instance` with the same `sent_content_hash` and asset checksums. The scheduler refuses the repeat when `edited_after_approval` is set, the live hash or asset checksums differ from the approved repeat hashes, or a referenced fact is expired or retired (`valid_until` / `usable_facts_v`). That refusal does not revoke approval (D2). A non-repeatable refresh, including any refresh after facts change, is still a new revision plus Guardian and approval.
 
 ## G. Remaining true gaps (by priority)
-1. Human approvals: six draft site facts, HE seeds, real Core and carousel; no agent substitutes.
-2. Editorial calibration on 20+ human-labelled exemplars; production LLM provider still optional/unconfigured.
+1. Human approvals: insight, Core and derivative revisions used in a run. Approve only facts actually needed by its claims (not all six site facts). Unused drafts and pending_fact_keys alone do not require approval. HE seed review and carousel review remain human work.
+2. Editorial calibration on 20+ human-labelled exemplars before relying on scores to reduce human review or increase thresholds/volume. It is not a prerequisite for the first human-reviewed artifact. A configurable generation adapter exists; real provider credentials/model/payment permission remain unconfigured.
 3. Import 20–50 real posts and let Itay mark exemplars; loader exists.
-4. Review and activate the draft prompts as a human; Research prompt/provider must be supplied for live generation.
+4. Review/activate existing research.v0, core_creator.v0 and repurposer.v0 draft prompts as a human. Supply explicit provider/model/rates/budget/key and dual paid opt-in before live calls. See docs/LLM_RUNTIME.md.
 5. Real carousel rendering/visual preview and media storage/licensing policy; v0 PDF RenderQA is built.
 6. Time-saved baseline and human-confirmed ICP metrics; xlsx import is built.
 7. Hosted DB migrations have not been applied; all validation is local PGlite.
@@ -145,3 +145,13 @@ lead owner, exemplar and memory promotion boundaries while preserving D2 audit-o
 
 ## Exact repeat (2026-11-03 20:35 Asia/Jerusalem)
 Itay locked a verbatim 14-day repeat for a version he marks repeatable (migration 011). This replaces the old F.5 / H-12 default for those pieces only. Quiet days stay manual. LinkedIn `text_post` and `carousel` only. No auto-publish. D1–D5 are unchanged; a drifted hash is refused by the scheduler and does not revoke approval.
+
+## Phase 0.3 generation runtime (2026-11-04)
+
+Added llm/client.mjs with an offline default, explicit environment + CLI payment opt-in, configured
+Chat Completions endpoint/model, durable per-run budget reservations and audit-only call metadata.
+The existing Orchestrator now passes the full approved insight/Core and current brand/ICP/usable-fact
+context to the approved prompt. External calls run outside content transactions; rollback cannot erase
+spend. Cached responses support resume; failed/unknown calls never auto-resend. The first HE text
+artifact can stop at package_preview without a publishing adapter, hosted DB or editorial calibration.
+Only mocked provider responses were used for validation. Real human approvals/payment remain open.

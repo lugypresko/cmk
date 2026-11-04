@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Explicit commands only. There is no auto-publish adapter.
 import fs from 'node:fs';
+import {config,executionMode} from '../llm/client.mjs';
 import path from 'node:path';
 import {openDB,root,journal} from '../runtime/db.mjs';
-import {enqueue,run,resumeHuman} from '../runtime/orchestrator.mjs';
+import {enqueue,run,resumeHuman,preview,retryHuman} from '../runtime/orchestrator.mjs';
 import {qa,buildPackage,importMeasurement,importPast} from '../runtime/production.mjs';
 import {proposeSlots,confirmSlot} from '../runtime/scheduler.mjs';
 import {beginManual,recordOutcome,confirmURL} from '../runtime/distributor.mjs';
@@ -19,7 +20,30 @@ try {
  db=await openDB();let result;
  switch(op) {
  case 'enqueue': result=await enqueue(db,required('kind'),read('input'));break;
- case 'run': result=await run(db,required('id'));break;
+ case 'start':result=await enqueue(db,'core',{idea:required('idea'),language:value('language')||'he',package_dir});break;
+ case 'run': {
+  const mode=executionMode(args);
+  if(mode==='--allow-paid') {
+   if(!config(process.env,true).enabled)throw Error('CMK_LLM_PAID_CALLS_ENABLED=true also required');
+   const w=(await db.query('SELECT context FROM cmk.work_items WHERE id=$1',[required('id')])).rows[0];
+   if(!w)throw Error('work item not found');
+   if(['research','core','piece'].some(k=>w.context[k]))throw Error('Paid mode refuses fixture payloads; create a live work item');
+   result=await run(db,required('id'),undefined,{allowPaid:true});
+  }else if(mode==='--fixture'||mode==='--offline')result=await run(db,required('id'));
+  else result=await preview(db,required('id'));
+  break;
+ }
+ case 'retry':result=await retryHuman(db,required('id'),human());break;
+ case 'multiply': {
+  const w=(await db.query("SELECT * FROM cmk.work_items WHERE id=$1 AND kind='core'",[required('id')])).rows[0];
+  if(!w?.subject_id)throw Error('Core work item has no Core yet');
+  const core=(await db.query("SELECT status FROM cmk.core_assets WHERE id=$1",[w.subject_id])).rows[0];
+  if(core?.status!=='approved')throw Error('human_gate:approve_core');
+  result=await enqueue(db,'derivative',{core_id:w.subject_id,format:'text_post',language:value('language')||'he',package_dir},null,w.id);
+  break;
+ }
+ case 'llm-status':result=(await db.query(`SELECT r.id,r.budget_microusd,c.id AS call_id,c.state,c.model,c.charged_microusd,c.error_code
+  FROM cmk.llm_runs r LEFT JOIN cmk.llm_calls c ON c.run_id=r.id WHERE r.id=(SELECT run_id FROM cmk.work_items WHERE id=$1) ORDER BY c.created_at`,[required('id')])).rows;break;
  case 'resume': result=await resumeHuman(db,required('id'),human());break;
  case 'qa': result=await qa(db,required('id'),path.resolve(required('file')),read('alt'));break;
  case 'package': result=await buildPackage(db,required('id'),package_dir,args.includes('--allow-edited')?human():null);break;
@@ -36,10 +60,10 @@ try {
  case 'posted-url':result=await confirmURL(db,required('id'),required('url'),human());break;
  case 'error-watch':result=await proposeReplay(db,read('input'));break;
  case 'status':result=(await db.query('SELECT id,kind,state,step,blocked_on,stop_reason FROM cmk.work_items ORDER BY created_at')).rows;break;
- default:throw Error('Commands: enqueue run resume qa package measure import-past propose-slots confirm-slot begin-manual outcome posted-url error-watch status');
+ default:throw Error('Commands: start enqueue run retry multiply llm-status resume qa package measure import-past propose-slots confirm-slot begin-manual outcome posted-url error-watch status');
  }
  console.log(JSON.stringify(result,null,2));
  // Each CLI invocation is mirrored in an append-only entry with a unique increasing suffix.
- const n=Math.max(21,...fs.readdirSync(path.join(root,'journal/entries')).map(f=>Number(f.match(/^2026-11-03_(\d+)_/)?.[1]||0)))+1;
+ const n=Math.max(21,...fs.readdirSync(path.join(root,'journal/entries')).map(f=>Number(f.match(/^\d{4}-\d{2}-\d{2}_(\d+)_/)?.[1]||0)))+1;
  await journal(db,n,'runtime_cli',`${op}: completed; see authoritative DB rows. Human approvals were never inferred.`);
 }catch(e){console.error(e.message);process.exitCode=1;}finally{if(db)await db.close();}

@@ -63,3 +63,24 @@ The supplied readiness patch applied cleanly; focused hardening was authorized b
   smoke test fails; these schema mutations roll back and never touch the persistent DB.
 - research.v0 is seeded draft/inactive by migration 013. All four prompts remain draft and inactive;
   all six site facts remain draft. No provider was connected and no real approval was granted.
+
+# Phase 0.3 LLM wiring (2026-11-04)
+
+- Based on phase-0-2-readiness at eaeea7647b7039fae51869c3658b8b4db13fa04b.
+- Clean test_all.sh --fresh: 19/19 apply/SQL steps (schema through 014 and five rollback tests).
+  Guardian 19, file/import 8, fonts 7, existing runtime 16 and new LLM suite 14: 64 passed.
+- The LLM suite exercises an injected Chat Completions transport; no real provider is called.
+  It reaches a packaged Hebrew text post using the existing Orchestrator with no fixture payloads,
+  stops at insight/Core/piece approval and package preview, passes complete insight/Core/memory/fact
+  context, shares the Core's budget and leaves unused site facts unapproved.
+- Negative coverage: default-off and conflicting CLI modes, prompt/config blockers, input/budget
+  limits before transport, concurrent budget reservations, timeout/unknown/HTTP/truncated/invalid JSON,
+  missing usage, usage overruns, stable cache/resume, changed-context refusal, attempted model approvals,
+  content rollback retaining costs and FactGate blocking unsupported claims even with no fact_ids.
+- Persistent local DB check after testing: zero llm_calls, zero active prompts and zero approved facts.
+  Human approvals in tests are synthetic and confined to isolated databases. No model/API key/provider
+  prices were selected, payment flag enabled, publishing performed or hosted migration applied.
+- Provider-specific compatibility and live semantic quality are not claimed by mocked tests. A human
+  must select the endpoint/model/rates/budget/key, approve prompts/content and explicitly enable paid
+  access before live validation. The accounting guard uses configured rates and conservative estimates,
+  not a guarantee of provider-side billing. Editorial remains heuristic-stub-v0.

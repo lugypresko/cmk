@@ -75,7 +75,8 @@ Re-import replaces that window's platform snapshot, preserving previously confir
 `work_transitions` remains the allowed-transition policy. `run` resumes committed steps after a crash;
 a live lease prevents duplicate workers. Exhausted work stops with a reason. Each derivative is independent.
 Fixture mode is explicit through `context.core`/`context.piece`; it uses supplied text only, without an LLM.
-Production judgment providers require an active approved DB prompt. No API keys or LLM calls are built in.
+Production judgment providers require an active approved DB prompt. The optional transport and
+explicit payment controls are documented in LLM_RUNTIME.md; default run is an offline preflight.
 
 Draft prompts are seeded by 008, plus research.v0 by 013. Itay reviews the body, then can approve/activate a specific UUID:
 
@@ -97,7 +98,7 @@ baseline Guardian replay. The replay is explicitly a stub, never evidence that a
 
 ```bash
 node scripts/cmk.mjs enqueue --kind core --input fixture-workflow.json
-node scripts/cmk.mjs run --id WORK_UUID
+node scripts/cmk.mjs run --id WORK_UUID  # dry preflight; see LLM_RUNTIME.md for explicit modes
 node scripts/cmk.mjs status
 node scripts/cmk.mjs resume --id WORK_UUID --confirmer Itay
 node scripts/cmk.mjs qa --id CONTENT_UUID --file carousel.pdf --alt alt-text.json
@@ -180,3 +181,10 @@ No baseline or ICP count is inferred from engagement. Time saved has the same ex
 
 Read-only inspection: `node scripts/q.mjs "SELECT * FROM cmk.work_events ORDER BY id DESC LIMIT 20"`.
 `q.mjs` runs a read-only transaction. Use a deliberate operator SQL transaction for human approvals.
+
+## Optional LLM generation path
+
+See [LLM_RUNTIME.md](LLM_RUNTIME.md) for `start`, `run --allow-paid`, `run --offline`, `multiply`,
+`retry` and `llm-status`. The original keys are reused; no duplicate prompt namespace is created.
+Provider selection, model, prices, API key, budget and payment permission must be supplied explicitly.
+No real calls are needed for `scripts/test_all.sh --fresh`; all transport tests use injected mocks.
