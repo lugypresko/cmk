@@ -1,3 +1,5 @@
+# Engineering portfolio: [implementation, controls and verification →](ENGINEERING.md)
+
 # Content Memory Kitchen (CMK) — Memory v0 → SPEC v1
 
 **What this is.** CMK is the Business Memory for The Push / Itay Foyerstein. It's a Postgres "codebase" that content agents read before they write anything. Agents write into it, and the Guardian gates what they write. The source of truth is https://itayfoyerstein.com:
