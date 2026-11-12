@@ -130,9 +130,7 @@ def check(piece: dict, ctx: dict, strict: bool = False, media_qa: str | None = N
                              suggestion="Resolve (Itay confirms the anecdote) or delete the paragraph before review."))
 
     # B-02 pricing
-    # checklist v1 regex has a bare "NIS" that matches inside "finished" under re.I;
-    # word-bound it here (proposed checklist v2 fix, see README).
-    rx = re.compile(checks["B-02"]["params"]["regex"].replace("|NIS|", r"|\bNIS\b|"), re.I)
+    rx = re.compile(checks["B-02"]["params"]["regex"], re.I)
     for field, v in text_fields(piece):
         for m in rx.finditer(v):
             F.append(finding("B-02", "fact", "blocker", f"pricing/discount/free-offer pattern {m.group(0)!r}", field=field,

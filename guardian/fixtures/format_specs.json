@@ -1,6 +1,6 @@
 [
   {
-    "id": "71517cda-b62f-4a1e-9667-46521eccd246",
+    "id": "f13cfb41-5809-4a35-9010-7d09969263bf",
     "format": "text_post",
     "channel": "linkedin",
     "language": "en",
@@ -74,8 +74,8 @@
       }
     ],
     "example_ids": [],
-    "created_at": "2026-11-03T14:44:21.950Z",
-    "updated_at": "2026-11-03T14:44:21.950Z",
+    "created_at": "2026-11-03T15:42:46.370Z",
+    "updated_at": "2026-11-03T15:42:46.370Z",
     "min_duration_s": null,
     "max_duration_s": null,
     "aspect_ratio": null,
@@ -88,7 +88,7 @@
     "notes": "v0 active recipe. Primary channel; other channels in format_registry.default_channels get their own rows when enabled."
   },
   {
-    "id": "c516f19f-4a2f-4436-b6be-d7789bd63aad",
+    "id": "91eceac3-58c5-4f36-868e-dc40bfd167cd",
     "format": "text_post",
     "channel": "linkedin",
     "language": "he",
@@ -162,8 +162,8 @@
       }
     ],
     "example_ids": [],
-    "created_at": "2026-11-03T14:44:21.950Z",
-    "updated_at": "2026-11-03T14:44:21.950Z",
+    "created_at": "2026-11-03T15:42:46.370Z",
+    "updated_at": "2026-11-03T15:42:46.370Z",
     "min_duration_s": null,
     "max_duration_s": null,
     "aspect_ratio": null,
@@ -176,7 +176,7 @@
     "notes": "v0 active recipe. Primary channel; other channels in format_registry.default_channels get their own rows when enabled."
   },
   {
-    "id": "55d06850-0636-4e6a-a473-9edfad059fee",
+    "id": "da6a1971-0886-4a42-a7d6-1606c388da72",
     "format": "carousel",
     "channel": "linkedin",
     "language": "en",
@@ -241,8 +241,8 @@
       }
     ],
     "example_ids": [],
-    "created_at": "2026-11-03T14:44:21.950Z",
-    "updated_at": "2026-11-03T14:44:21.950Z",
+    "created_at": "2026-11-03T15:42:46.370Z",
+    "updated_at": "2026-11-03T15:42:46.370Z",
     "min_duration_s": null,
     "max_duration_s": null,
     "aspect_ratio": "4:5",
@@ -255,7 +255,7 @@
     "notes": "v0 active recipe. Primary channel; other channels in format_registry.default_channels get their own rows when enabled."
   },
   {
-    "id": "bc054f8f-6228-4c75-880e-2bae34c46ec7",
+    "id": "9fd86a4f-43c8-4d10-8297-6d1976b5f535",
     "format": "carousel",
     "channel": "linkedin",
     "language": "he",
@@ -320,8 +320,8 @@
       }
     ],
     "example_ids": [],
-    "created_at": "2026-11-03T14:44:21.950Z",
-    "updated_at": "2026-11-03T14:44:21.950Z",
+    "created_at": "2026-11-03T15:42:46.370Z",
+    "updated_at": "2026-11-03T15:42:46.370Z",
     "min_duration_s": null,
     "max_duration_s": null,
     "aspect_ratio": "4:5",

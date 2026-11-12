@@ -210,8 +210,15 @@ These go on top of `cmk/ContentPiece`. `body` stays required for every format. F
     "rotation_plan_id":  { "type": ["string","null"], "format": "uuid" },
     "rotation_slot_id":  { "type": ["string","null"], "format": "uuid" },
     "rotation_slot":     { "type": ["integer","null"], "minimum": 1, "maximum": 14, "description": "day in the 14-day plan" },
-    "is_evergreen":      { "type": "boolean", "description": "human-set; allows recycling" },
+    "is_evergreen":      { "type": "boolean", "description": "human-set; a non-exact refresh may become a new revision" },
     "recycled_from_id":  { "type": ["string","null"], "format": "uuid" },
+    "is_exact_repeatable": { "type": "boolean", "description": "human-set; scheduler may reuse this exact LinkedIn text_post or carousel revision" },
+    "repeat_every_days": { "type": "integer", "minimum": 14, "default": 14 },
+    "repeat_until":      { "type": ["string","null"], "format": "date", "description": "required with max_repeats when exact-repeatable" },
+    "max_repeats":       { "type": ["integer","null"], "minimum": 1, "description": "additional appearances after the original; required when exact-repeatable" },
+    "repeats_done":      { "type": "integer", "minimum": 0 },
+    "repeat_approved_content_hash": { "type": ["string","null"], "description": "sha256 of the approved version; a later mismatch refuses the repeat and does not revoke approval" },
+    "repeat_asset_hashes": { "type": ["array","null"], "items": { "type": "string" }, "description": "sha256 checksums of the approved assets; empty array when there are none" },
     "guardian_threshold_profile": { "type": ["string","null"], "description": "e.g. v0, spec_v1" },
     "brand_score_float":         { "type": ["number","null"], "minimum": 0, "maximum": 1, "readOnly": true },
     "icp_relevance_score_float": { "type": ["number","null"], "minimum": 0, "maximum": 1, "readOnly": true }
@@ -428,12 +435,12 @@ These sit on top of GuardianReport v0/v1. The existing top-level fields (`verdic
                    "properties": { "pass": {"type":"boolean"},
                      "claims": { "type":"array", "items": { "type":"object", "required":["text","kind"],
                        "properties": { "text":{"type":"string"}, "kind":{"enum":["fact","experience","opinion"]},
-                                       "fact_id":{"type":["string","null"]}, "status":{"enum":["matched","missing","expired","weaker_ok","stronger_fail"]} } } },
+                                       "fact_id":{"type":["string","null"]}, "status":{"enum":["matched","missing","expired","weaker_ok","stronger_fail","semantic_review_required"]} } } },
                      "findings": {"type":"array"} } },
     "editorial": { "type": "object", "required": ["brand_score","icp_relevance_score"], "description": "EditorialGuardian (LLM). Scores only.",
                    "properties": { "brand_score":{"type":"integer","minimum":0,"maximum":100},
                      "icp_relevance_score":{"type":"integer","minimum":0,"maximum":100},
-                     "source_supports_wording": {"enum":["yes","partly","no","n_a"]},
+                     "source_supports_wording": {"enum":["yes","partly","no","n_a","unverified"]},
                      "adds_value": {"type":"boolean"}, "misleading_risk": {"type":"string"},
                      "findings": {"type":"array"}, "recommend_reject": {"type":"boolean"} } },
     "verdict": { "enum": ["pass","needs_changes","reject"] } } }
@@ -506,3 +513,16 @@ Allowed transitions live in `work_transitions`. `awaiting_human → *` and reviv
 
 ## MediaAsset (RenderQA)
 `{id, content_id, content_revision, kind, storage_uri, sha256, bytes, width, height, duration_s, page_count, source, license_note, consent_fact_id, ai_disclosure, qa_status: pending|pass|fail, qa_report, qa_checked_at}`. Stock media needs a `license_note`. Generated media needs `ai_disclosure=true`.
+
+
+### FactGate support boundary (2026-11-04)
+
+`matched` now means the complete claim matches one usable approved statement after conservative
+whitespace/case/terminal-punctuation normalization. `support_basis=literal_approved_wording` is a
+literal comparison, not truth or contextual entailment. Word/number overlap proposes a fact candidate
+only; nonliteral claims block with `semantic_review_required`, including smaller numbers and explicit
+fact_ids. Review means checking sources and approving a new exact fact wording/version or removing the
+claim, not a model authorizing a bypass. `fact.review` reports heuristic_incomplete extraction,
+unclassified sentences, not_verified semantic support and human_review_required. Unclassified text
+is not proven nonfactual; deterministic pass alone cannot authorize publication. The heuristic editorial
+scorer reports `source_supports_wording=unverified`, never derives semantic support from token overlap.

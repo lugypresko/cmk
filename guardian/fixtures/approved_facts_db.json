@@ -1,9 +1,9 @@
 {
-  "_note": "Exported from local PGlite cmk.approved_facts. ALL rows are status=draft (site facts, not yet approved by Itay). FactGate only accepts status=approved AND confidentiality=public AND unexpired. No Stripe/proof facts exist.",
-  "exported_at": "2026-11-03T14:52:34.219Z",
+  "_note": "Exported from local PGlite cmk.approved_facts. Approval state is taken from the DB at export time. FactGate only accepts status=approved AND confidentiality=public AND unexpired. No Stripe/proof facts exist.",
+  "exported_at": "2026-11-03T15:43:20.748Z",
   "facts": [
     {
-      "id": "24ca38b6-8b19-450c-96df-6e8784d08e98",
+      "id": "e38279d5-4197-46ff-9200-7fca3fa8d785",
       "fact_key": "boundary.confidentiality",
       "category": "boundary",
       "statement_en": "Names are withheld where confidentiality requires it. Funding by a company never authorizes sharing what is said in sessions.",
@@ -19,7 +19,7 @@
       ]
     },
     {
-      "id": "f6a14e65-1f07-4669-a365-4649e034632e",
+      "id": "24f15b53-a5c2-439c-b7d8-468422233a27",
       "fact_key": "credential.hours",
       "category": "credential",
       "statement_en": "1000+ coaching hours.",
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "id": "f75c89af-465c-4a15-907b-5aa423fbf9b1",
+      "id": "efd162b2-3807-4752-967c-46790abccc49",
       "fact_key": "credential.years",
       "category": "credential",
       "statement_en": "25+ years in technology and delivery.",
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "id": "9564cd29-33ca-4c51-89a3-9ea34a1e7021",
+      "id": "195e85f7-ca44-4b4e-ba10-c2344bae1cf6",
       "fact_key": "method.loop",
       "category": "method",
       "statement_en": "See the real case and the system around it; challenge the first explanation; move one real leadership behavior; read how people respond; adjust what comes next.",
@@ -67,7 +67,7 @@
       ]
     },
     {
-      "id": "27ba6aaf-dd5e-47a4-913e-573fd2746ad8",
+      "id": "a02fbefb-44e4-46bd-b556-dd823ee7aab6",
       "fact_key": "offering.first_read",
       "category": "offering",
       "statement_en": "Bring one current case; you get a written first read before anyone asks for a call.",
@@ -83,7 +83,7 @@
       ]
     },
     {
-      "id": "992068c0-2802-4d10-9447-e4c158b0dffc",
+      "id": "aac91d19-ce0e-4726-a49b-d6434aea7fef",
       "fact_key": "offering.structure",
       "category": "offering",
       "statement_en": "12 weeks, 6 private 1:1 sessions, 1 problem worth changing.",

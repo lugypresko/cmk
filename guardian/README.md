@@ -6,7 +6,7 @@ Implements decision **D1**: the code gates (SpecGate, FactGate) are the only thi
 python3 -m guardian runs/001-human-gates/linkedin_text_he.md                # variant B, prints JSON
 python3 -m guardian piece.md --facts facts.json --variant A --twin twin.md --out report.json --summary
 python3 -m guardian piece.json --claims claims.json --media-qa pass --strict
-python3 -m unittest discover -s guardian/tests -t .                          # 19 tests
+python3 -m unittest discover -s guardian/tests -t .                          # current suite
 scripts/run_guardian_001.sh                                                  # run 001 → runs/001-human-gates/guardian_report_v2/
 ```
 Exit codes: `0` gates pass · `1` gate block · `2` input/usage error.
@@ -26,7 +26,7 @@ Exit codes: `0` gates pass · `1` gate block · `2` input/usage error.
 | Gate | Checks (ids from guardian_checklist.json) |
 |---|---|
 | SpecGate | S-01 schema (approved ⇒ approved_by/at + scores; DB ids are info in file mode, major with `--strict`), S-02 unresolved `⟦…⟧`, S-03 format_spec, B-02 pricing/discount, B-07 guarantees, B-03/04/05 (regex part), B-06/L-01/L-02 language purity, B-09 agent approver, B-11 carousel 5–10, B-12 hashtags, F-T1..F-T7, F-C1..F-C7, CTA-01/02/03/05, L-05 twin parity, R-01 RenderQA |
-| FactGate | extracts claims (numbers, third parties, credentials, results, generalisations), matches them to usable facts, flags stronger-than-fact numbers, fact_id not listed, and draft/expired facts (B-01, B-08, C-04/05/08). Accepts pre-extracted `--claims`. |
+| FactGate | extracts claims (numbers, third parties, credentials, results, generalisations), uses overlap only to propose candidates; allows complete literal approved wording and blocks nonliteral support for explicit review; flags stronger-than-fact numbers, fact_id not listed, and draft/expired facts (B-01, B-08, C-04/05/08). Accepts pre-extracted `--claims`. |
 | EditorialGuardian | **`heuristic-stub-v0`**: brand rubric BR-1..9, ICP-1..6, penalties, and E-DUP (the same idea said twice). |
 
 **Production:** EditorialGuardian will call an LLM with `brand_voice`, `icp_profile`, and the rubric, then return the same JSON shape. The stub is deliberately simple and **generous**: ICP lands at 95–100 on every run-001 piece, so it can't tell good pieces from mediocre ones yet. Don't treat its scores as calibrated. Calibrate it against the reference set before relying on the thresholds (brand 75 / ICP 70).
@@ -46,9 +46,24 @@ Verdict order:
 4. Otherwise, the thresholds decide.
 
 ## Deviations and known gaps
-- **R-01** blocks every carousel until `--media-qa pass`. Nothing has been rendered yet.
-- **B-02**: the checklist v1 regex has a bare `NIS` that matched inside "fi**nis**hed" under re.I. The gate word-bounds it. Proposed checklist v2 fix: use `\bNIS\b`.
+- **R-01** blocks until DB RenderQA passes for the current revision/content/file hash. File-mode tests may use `--media-qa pass`. A run001 placeholder PDF was QA-tested; real carousel approval remains open.
+- **B-02**: checklist v2 uses `\bNIS\b`, seeded in Postgres by 006 and exported with `export_fixtures.mjs`. The gate reads that exported DB checklist.
 - **E-DUP** is a stub heuristic: two clauses with the same 5-word tail (questions skipped).
 - **B-03/04/05/C-08** use regex/heuristics only. The LLM pass in production should cover tone and invented scenes.
 - Hebrew number words ("עשרות", "מאות") are detected weakly. Prefer digits plus a fact_id.
 - **F-T7** (link in body) and the duplicate-source check need DB context, so they are only partial in file mode.
+
+
+## FactGate limits and explicit review
+
+FactGate is a deterministic heuristic filter, not a proof that all claims were found or supported.
+Negation/direction changes cannot pass merely by sharing words and numbers. A detected factual claim
+must match a complete usable approved statement and list its id; otherwise it is blocked as missing,
+stronger_fail or semantic_review_required. Even an apparently harmless paraphrase or smaller figure
+requires source review and a new human-approved wording/version; there is no model-based override.
+
+Extraction remains incomplete. `fact.review` surfaces unclassified sentences and explicitly marks
+semantic support not_verified and human_review_required. Such sentences may be advice or missed facts;
+a pass is only absence of implemented blockers. Inspect the entire text and sources before approving.
+The editorial stub no longer emits source_supports_wording=yes from a lexical match. No LLM judgment
+would prove truth either. Local human actor declarations remain trusted operator conventions.

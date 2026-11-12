@@ -198,7 +198,7 @@ def score(piece: dict, ctx: dict, spec_report: dict | None = None, fact_report: 
         "note": "Heuristic stub for calibration only. Production EditorialGuardian calls an LLM with the guardian_rules.md rubric.",
         "brand_score": brand, "icp_relevance_score": icp_score,
         "brand_components": comp, "icp_components": icp, "penalties": pen,
-        "source_supports_wording": "n_a" if not matched else "yes",
+        "source_supports_wording": "n_a" if not matched else "unverified",
         "adds_value": bool(mv) and bool(pat),
         "misleading_risk": "none detected by heuristics (LLM review pending)",
         "recommend_reject": brand < th["reject_brand_below"] or icp_score < th["reject_icp_below"],

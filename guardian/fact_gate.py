@@ -1,21 +1,13 @@
-"""FactGate v0 — every factual claim must map to an approved + public + unexpired fact
-(cmk.usable_facts_v) that is listed in the piece's fact_ids, or be clearly
-experience/opinion. Otherwise B-01 (block). Deterministic heuristics, no LLM.
-
-Claim extraction (guardian_rules §6): digits / % / multipliers, strong Hebrew number
-words, credentials, outcome promises, statements about named third parties, and
-quantified experience ("80% of managers I coach" => fact, C-05).
-Unquantified generalisations ("in many teams…") are kept as kind=experience (voice).
-
-Pre-extracted claims: pass claims=[{text, kind, fact_id?}] to skip extraction.
-Deviation from checklist B-01 params: weak HE number words (אחד/אחת/שניים/שלוש) are NOT
-claims by themselves — they are used like EN "one" ("one review", "אף אחד").
+"""Heuristic claim extraction and literal approved-wording checks, not truth verification.
+Word/number overlap only proposes a candidate fact. Nonliteral wording is blocked for
+explicit semantic review. Extraction is incomplete; unclassified text is reported for
+human review. No model verdict or fact_id alone establishes semantic support.
 """
 from __future__ import annotations
 
 import re
 
-from .common import fact_usable, finding, sentences, text_fields
+from .common import fact_usable, finding, norm, sentences, text_fields
 
 NUM_RE = re.compile(r"(?<![A-Za-z\u0590-\u05FF\d])(\d[\d,.]*)\s*(\+|%|x|×)?(?![A-Za-z\d])")
 MULT_RE = re.compile(r"\b\d+(\.\d+)?\s*[x×]\b|\bפי\s+\S+|\b(double|triple|halve)[sd]?\b", re.I)
@@ -27,6 +19,7 @@ GENERAL_RE = re.compile(r"\b(every|all|most|many|always|never|nobody|no one)\b[^
 # Named third party + an assertion verb about it.
 TP_EN = re.compile(r"\b([A-Z][a-zA-Z]+(?:\.[a-z]+)?)\s+(has|have|had|is|are|was|were|uses?|used|built|wrote|written|publish\w*|merg\w*|ships?|shipped|runs?|ran|says?|said|reports?|reported|announced)\b")
 TP_HE = re.compile(r"(?:ב-?|ש-?)?([A-Z][a-zA-Z]+)\s+(כתבו|פרסמו|משתמשים|בנו|מריצים|הודיעו|דיווחו|ממזגים)|ב-?([A-Z][a-zA-Z]+)\s+(כתבו|פרסמו|משתמשים|בנו|מריצים|הודיעו|דיווחו|ממזגים)")
+HE_ASSERTION_RE = re.compile(r"(?:^|\s)(?:המערכת|החברה|הצוות|המוצר|השירות|אנחנו)\s+(?:לא\s+)?(?:שומרת?|מאחסנת?|תומכת?|מספקת?|מפעילה?|משתמשת?|מייצרת?|מאפשרת?|עובדת?|פועל(?:ת)?)(?:\s|$)|(?:^|\s)(?:הפחתנו|הגדלנו|צמצמנו|שיפרנו|העלינו|הורדנו|השקנו|סיפקנו|ביצענו|חסכנו)(?:\s|$)")
 NOT_ENTITIES = {"The", "This", "That", "These", "Those", "It", "I", "We", "You", "Your", "Our", "They", "He", "She", "A", "An",
                 "Not", "Start", "Middle", "End", "One", "Same", "Before", "Accountability", "Output", "Gate", "Mark", "List",
                 "Take", "Keep", "In", "If", "So", "Then", "Agents", "Agent", "Each", "Every", "Most", "Many", "What", "Who",
@@ -62,6 +55,8 @@ def _signals(sent: str) -> list[str]:
         sig.append("multiplier")
     if HE_STRONG_NUM.search(sent):
         sig.append("he_number_word")
+    if HE_ASSERTION_RE.search(sent):
+        sig.append("he_assertion")
     if CRED_RE.search(sent):
         sig.append("credential")
     if OUTCOME_RE.search(sent):
@@ -99,11 +94,23 @@ def extract_claims(piece: dict) -> list[dict]:
     return claims
 
 
+def _literal(s: str) -> str:
+    # Preserve words, negation, direction, signs and internal punctuation.
+    return norm(s).casefold().rstrip(".?!; ")
+
+
+def _literal_support(text: str, fact: dict) -> bool:
+    return any(_literal(text) == _literal(fact.get(k) or "")
+               for k in ("statement_en", "statement_he") if fact.get(k))
+
+
 def _match(claim: dict, facts: list[dict], lang: str) -> tuple[dict | None, float]:
     best, best_score = None, 0.0
     ct = _tokens(claim["text"])
     cn = [n for n, _ in _numbers(claim["text"])]
     for f in facts:
+        if _literal_support(claim["text"], f):
+            return f, 10.0
         stmt = f"{f['statement_en']} {f['statement_he']}"
         ft = _tokens(stmt) | set(f["fact_key"].replace(".", " ").replace("_", " ").lower().split())
         fn = [n for n, _ in _numbers(stmt)]
@@ -180,15 +187,19 @@ def check(piece: dict, facts: list[dict], claims: list[dict] | None = None) -> d
                      reason=f"closest fact {fact['fact_key']} is not usable ({fact['_why']})")
         else:
             st = _compare_numbers(c["text"], fact)
+            if st != "stronger_fail" and not _literal_support(c["text"], fact):
+                st = "semantic_review_required"
+                c["reason"] = "word/number overlap is only a candidate; nonliteral wording needs explicit support review"
+            c["support_basis"] = "literal_approved_wording" if st == "matched" else "unverified_candidate"
             c.update(fact_id=str(fact["id"]), fact_key=fact["fact_key"], status=st)
             if st != "stronger_fail" and str(fact["id"]) not in listed:
                 c["status"] = "missing"
                 c["reason"] = f"matches usable fact {fact['fact_key']} but it is not listed in fact_ids"
-        if c["status"] in ("missing", "expired", "stronger_fail"):
+        if c["status"] in ("missing", "expired", "stronger_fail", "semantic_review_required"):
             unsupported.append(c["text"])
             F.append(finding("B-01", "fact", "blocker", f"unsupported claim ({c['status']}): {c.get('reason', 'number stronger than fact')}",
                              field=c.get("field"), excerpt=c["text"],
-                             suggestion="Get the fact approved (status=approved, public) and list its id, or remove/soften the claim."))
+                             suggestion="Use the exact usable approved wording and list its id, or have a human review the claim and approve a new fact version. No model verdict grants approval."))
         out_claims.append(c)
 
     # C-04: listed but not used
@@ -202,8 +213,18 @@ def check(piece: dict, facts: list[dict], claims: list[dict] | None = None) -> d
     for k in piece.get("pending_fact_keys") or []:
         F.append(finding("C-08", "fact", "info", f"pending_fact_keys lists {k} (not approved; the text in this variant must not rely on it)"))
 
+    emitted = {c["text"].strip() for c in out_claims}
+    unclassified = [{"field": field, "text": sentence}
+                    for field, text in text_fields(piece) for sentence in sentences(text)
+                    if sentence.strip() and sentence.strip() not in emitted and not sentence.rstrip().endswith("?")]
+    if unclassified:
+        F.append(finding("B-01", "fact", "info", "Claim extraction is incomplete: unclassified text requires human factual/semantic review; a deterministic pass is not evidence of support."))
     blocked = any(f["severity"] == "blocker" for f in F)
     return {"pass": not blocked, "verdict": "block" if blocked else "pass", "claims": out_claims,
             "unsupported_claims": unsupported, "findings": F,
+            "review": {"extraction": "heuristic_incomplete", "semantic_support": "not_verified",
+                       "human_review_required": bool(out_claims or unclassified),
+                       "unclassified_sentences": unclassified,
+                       "note": "Pass means no implemented deterministic blocker; it is not factual or semantic approval."},
             "facts_considered": {"total": len(facts), "usable": len(usable_ids),
                                  "statuses": sorted({f["status"] for f in facts})}}

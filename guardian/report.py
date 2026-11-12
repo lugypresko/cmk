@@ -39,7 +39,7 @@ def assemble(piece: dict, spec: dict, fact: dict, editorial: dict, ctx: dict) ->
         "verdict": verdict,
         "verdict_reason": reason,
         "spec": {k: spec[k] for k in ("pass", "verdict", "checklist_version", "format_spec_id", "findings")},
-        "fact": {k: fact[k] for k in ("pass", "verdict", "claims", "unsupported_claims", "findings", "facts_considered")},
+        "fact": {k: fact[k] for k in ("pass", "verdict", "claims", "unsupported_claims", "findings", "facts_considered", "review")},
         "editorial": editorial,
         # derived v0/v1 fields
         "brand_score": brand,
